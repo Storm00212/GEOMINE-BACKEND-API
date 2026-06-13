@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Defines shared error classes for consistent error handling.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // export class HttpError extends Error {
 //   status: number;
 //
