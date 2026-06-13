@@ -1,3 +1,9 @@
+// FILE PURPOSE:
+// - Unit tests for the prediction engine feature.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 import { PredictionEngine } from '../../src/modules/predictions/prediction-engine.js';
 
 describe('Prediction Engine', () => {
