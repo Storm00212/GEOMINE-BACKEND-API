@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Handles database access for the auth module using Prisma.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { prisma } from '@config/database';
 //
 // export const findUserByEmail = (email: string) => prisma.user.findUnique({ where: { email } });
