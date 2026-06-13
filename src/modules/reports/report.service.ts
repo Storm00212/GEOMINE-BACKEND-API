@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Implements business logic for the reports module.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { prisma } from '@config/database';
 //
 // export const getSummaryReport = async () => {
