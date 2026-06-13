@@ -115,3 +115,13 @@ npm run test:watch
 - Format with `npm run format`
 - Pre-commit hooks run lint-staged
 - Use Docker Compose for local service orchestration
+
+## Considerations
+
+- Make sure the .env file you set up is in the same directory as .env.local for the server to pick it up.
+- Check your Node version as well (npm --version) Node 18 and higher is preferred.
+- Familiarize yourself with prisma commands (npm run prisma:generate, npm run prisma:migrate, npm run prisma:studio)
+- Make sure your commits are done to your branch and not the main branch for code reviews.
+- To use your personal Github branch (git checkout <your-branch-name>). This is necessary for code reviews.
+- Do not push the node_modules folder.
+
