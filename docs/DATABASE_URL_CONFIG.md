@@ -32,7 +32,11 @@ Loads and exports all environment variables:
 
 ```typescript
 export const config = {
-  databaseUrl: process.env.DATABASE_URL ?? 'postgresql://...',
+  databaseUrl: process.env.DATABASE_URL ?? 'postgresql://postgres.zvrcpsnuhbqemnmdohve:JEEhq.R-uJ8%23u%21%25@aws-0-eu-west-1.pooler.supabase.com:5432/postgres?schema=public&sslmode=require
+  jwtSecret: process.env.JWT_SECRET ?? 'supersecretjwtkey',
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
+  saltRounds: process.env.SALT_ROUNDS ?? 12,
+  logLevel: process.env.LOG_LEVEL ?? 'info',
   // ... other config
 };
 ```
