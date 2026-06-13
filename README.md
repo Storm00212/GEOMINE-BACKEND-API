@@ -49,11 +49,12 @@ npm install
 
 ## Environment Variables
 
-Create a `.env` file based on the sample values.
+Create a `.env` file based on these values.
 
 ```env
 PORT=4000
-DATABASE_URL=postgresql://geomine_user:geomine_password@localhost:5432/geomine_db?schema=public
+DATABASE_URL=postgresql://postgres.zvrcpsnuhbqemnmdohve:JEEhq.R-uJ8%23u%21%25@aws-0-eu-west-1.pooler.supabase.com:5432/postgres?schema=public&sslmode=require
+
 JWT_SECRET=supersecretjwtkey
 JWT_EXPIRES_IN=1h
 SALT_ROUNDS=12
@@ -123,5 +124,6 @@ npm run test:watch
 - Familiarize yourself with prisma commands (npm run prisma:generate, npm run prisma:migrate, npm run prisma:studio)
 - Make sure your commits are done to your branch and not the main branch for code reviews.
 - To use your personal Github branch (git checkout <your-branch-name>). This is necessary for code reviews.
+- Make sure your Git commit messages are detailed for ease of review.
 - Do not push the node_modules folder.
 
