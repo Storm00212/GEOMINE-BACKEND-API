@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Starts the Express HTTP server using the configured port and logger.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import app from './app.js';
 // import { config } from '@config/env';
 // import { logger } from '@config/logger';
