@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Implements business logic for the maintenance module.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { createMaintenanceEvent, getMaintenanceForBallMill } from './maintenance.repository.js';
 //
 // export const addMaintenanceEvent = (payload: {
