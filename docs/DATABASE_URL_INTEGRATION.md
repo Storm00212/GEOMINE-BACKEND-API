@@ -12,7 +12,7 @@ This file documents where and how DATABASE_URL is integrated throughout the GEOM
 
 ```typescript
 databaseUrl: process.env.DATABASE_URL ??
-  'postgresql://geomine_user:geomine_password@localhost:5432/geomine_db?schema=public';
+  'postgresql://postgres.zvrcpsnuhbqemnmdohve:JEEhq.R-uJ8%23u%21%25@aws-0-eu-west-1.pooler.supabase.com:5432/postgres?schema=public&sslmode=require';
 ```
 
 **Purpose**: Exports DATABASE_URL for use throughout the application
