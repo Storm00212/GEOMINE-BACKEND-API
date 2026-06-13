@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Handles incoming HTTP requests for the sensors module and forwards them to service logic.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { Request, Response, NextFunction } from 'express';
 // import { listSensorReadings, recordSensorReading } from './sensor.service.js';
 //
