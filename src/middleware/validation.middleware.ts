@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Transforms Zod validation failures into HTTP error responses.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { Request, Response, NextFunction } from 'express';
 // import { ZodError } from 'zod';
 //
