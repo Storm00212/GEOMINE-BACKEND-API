@@ -23,9 +23,9 @@ services:
     container_name: geomine-postgres
     restart: always
     environment:
-      POSTGRES_USER: geomine_user
-      POSTGRES_PASSWORD: geomine_password
-      POSTGRES_DB: geomine_db
+      POSTGRES_USER: postgres.zvrcpsnuhbqemnmdohve
+      POSTGRES_PASSWORD: JEEhq.R-uJ8#u!%
+      POSTGRES_DB: postgres
     ports:
       - '5432:5432'
     volumes:
