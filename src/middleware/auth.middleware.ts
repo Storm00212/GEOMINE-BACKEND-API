@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Authenticates API requests via JWT and attaches user metadata to the request object.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { NextFunction, Request, Response } from 'express';
 // import { verifyJwt } from '@shared/utils/jwt.util';
 //
