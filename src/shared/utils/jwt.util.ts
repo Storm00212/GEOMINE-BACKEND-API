@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Provides JWT creation and verification utilities.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import jwt from 'jsonwebtoken';
 // import { config } from '@config/env';
 // import { JwtPayload } from '@shared/types';
