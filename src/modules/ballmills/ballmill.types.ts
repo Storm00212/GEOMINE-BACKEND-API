@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Defines TypeScript types used by the ballmills module.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // export type BallMillCreatePayload = {
 //   name: string;
 //   location: string;
