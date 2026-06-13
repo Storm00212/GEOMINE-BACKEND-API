@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Calculates health scores and metrics used by the health module.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // export type HealthStatus = 'HEALTHY' | 'WARNING' | 'CRITICAL';
 //
 // export const calculateHealthScore = (currentAmp: number, temperature: number, runtimeHours: number) => {
