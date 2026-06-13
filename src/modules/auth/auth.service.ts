@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Implements business logic for the auth module.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { hashPassword, comparePassword } from '@shared/utils/hash.util';
 // import { signJwt } from '@shared/utils/jwt.util';
 // import { findUserByEmail, createUser } from './auth.repository.js';
