@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Defines a prediction rule used by the prediction engine.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { PredictionRule } from '../prediction-engine.js';
 //
 // export const temperatureRule: PredictionRule = {
