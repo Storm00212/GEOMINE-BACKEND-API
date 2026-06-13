@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Handles database access for the users module using Prisma.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { prisma } from '@config/database';
 //
 // export const getAllUsers = () => prisma.user.findMany({ select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true, updatedAt: true } });
