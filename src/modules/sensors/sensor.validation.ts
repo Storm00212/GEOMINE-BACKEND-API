@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Defines validation schemas for requests in the sensors module.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { z } from 'zod';
 //
 // export const createSensorReadingSchema = z.object({
