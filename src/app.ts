@@ -17,14 +17,17 @@ import maintenanceRoutes from '@modules/maintenance/maintenance.routes';
 import dashboardRoutes from '@modules/dashboard/dashboard.routes';
 import reportRoutes from '@modules/reports/report.routes';
 
+// Express application instance used to configure middleware and routes.
 const app = express();
 
+// Standard middleware for security, cross-origin access, payload handling, and logging.
 app.use(helmet());
 app.use(cors());
 app.use(compression());
 app.use(express.json());
 app.use(requestLogger);
 
+// Protect the API from abuse with a simple rate limiter.
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -32,6 +35,7 @@ app.use(rateLimit({
   legacyHeaders: false,
 }));
 
+// API route registration. Each module owns its own router and validation.
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ballmills', ballmillRoutes);
@@ -43,8 +47,10 @@ app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reports', reportRoutes);
 
+// Centralized error handling for all routes and middleware.
 app.use(errorMiddleware);
 
+// A lightweight health check endpoint that can be used by load balancers.
 app.get('/health', (_req, res) => res.status(200).json({ status: 'ok' }));
 
 export default app;
