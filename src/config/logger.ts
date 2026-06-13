@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Configures Winston logging and request logging middleware.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import express, { Request, Response, NextFunction } from 'express';
 // import winston from 'winston';
 // import { config } from './env.js';
