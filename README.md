@@ -119,7 +119,7 @@ npm run test:watch
 
 ## Considerations
 
-- Make sure the .env file you set up is in the same directory as .env.local for the server to pick it up.
+- Make sure the .env file you set up is in the root of the directory for the server to pick it up.
 - Check your Node version as well (npm --version) Node 18 and higher is preferred.
 - Familiarize yourself with prisma commands (npm run prisma:generate, npm run prisma:migrate, npm run prisma:studio)
 - Make sure your commits are done to your branch and not the main branch for code reviews.
