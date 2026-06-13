@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Configures and exports the Express application, including middleware and route registration.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import express from 'express';
 // import cors from 'cors';
 // import helmet from 'helmet';
