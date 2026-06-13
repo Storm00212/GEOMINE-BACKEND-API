@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Enforces role-based access control on protected routes.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { NextFunction, Request, Response } from 'express';
 // import { AuthRequest } from '@middleware/auth.middleware';
 // import { Role } from '@shared/constants/roles';
