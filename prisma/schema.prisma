@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  maintenanceEvents MaintenanceEvent[]
+}
+
+model BallMill {
+  id            String          @id @default(uuid())
+  name          String
+  location      String
+  status        String
+  installedDate DateTime
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  sensorReadings SensorReading[]
+  maintenanceEvents MaintenanceEvent[]
+  predictions   Prediction[]
+  alerts        Alert[]
+}
+
+model SensorReading {
+  id          String   @id @default(uuid())
+  ballMill    BallMill @relation(fields: [ballMillId], references: [id])
+  ballMillId  String
+  currentAmp  Float
+  temperature Float
+  runtimeHours Float
+  timestamp   DateTime
+}
+
+model MaintenanceEvent {
+  id              String   @id @default(uuid())
+  ballMill        BallMill @relation(fields: [ballMillId], references: [id])
+  ballMillId      String
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
+  eventType       String
+  notes           String?
+  performedBy     String
+  maintenanceDate DateTime
+}
+
+model Prediction {
+  id                String   @id @default(uuid())
+  ballMill          BallMill @relation(fields: [ballMillId], references: [id])
+  ballMillId        String
+  riskLevel         String
+  recommendedAction String
+  createdAt         DateTime @default(now())
+}
+
+model Alert {
+  id         String   @id @default(uuid())
+  ballMill   BallMill @relation(fields: [ballMillId], references: [id])
+  ballMillId String
+  severity   String
+  message    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
