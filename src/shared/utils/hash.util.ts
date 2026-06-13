@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Provides password hashing utilities.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import bcrypt from 'bcryptjs';
 // import { config } from '@config/env';
 //
