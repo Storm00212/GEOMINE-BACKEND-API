@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Implements business logic for the users module.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { createUser as createUserRepo, getAllUsers, getUserById, updateUser as updateUserRepo } from './user.repository.js';
 // import { hashPassword } from '@shared/utils/hash.util.js';
 // import { HttpError } from '@shared/errors/http.error.js';
