@@ -1,3 +1,9 @@
+// FILE PURPOSE:
+// - Loads environment variables and exports typed application configuration.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 import dotenv from 'dotenv';
 
 dotenv.config();
