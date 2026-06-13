@@ -1,3 +1,9 @@
+// FILE PURPOSE:
+// - Seeds the database with initial sample data and users.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
