@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Wraps validation schemas as Express middleware.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { NextFunction, Request, Response } from 'express';
 // import { AnyZodObject } from 'zod';
 //
