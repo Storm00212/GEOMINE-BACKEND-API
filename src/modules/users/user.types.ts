@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Defines TypeScript types used by the users module.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { Role } from '@shared/constants/roles';
 //
 // export type UserCreatePayload = {
