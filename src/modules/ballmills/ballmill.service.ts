@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Implements business logic for the ballmills module.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { createBallMill as createBallMillRepo, getAllBallMills, getBallMillById, updateBallMill as updateBallMillRepo } from './ballmill.repository.js';
 // import { HttpError } from '@shared/errors/http.error.js';
 //
