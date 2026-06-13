@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Handles runtime errors and formats JSON error responses.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // import { NextFunction, Request, Response } from 'express';
 // import { logger } from '@config/logger';
 //
