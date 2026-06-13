@@ -1,4 +1,9 @@
-// FILE COMMENTED OUT FOR TEAM REVIEW: active implementation paused except db/env setup
+// FILE PURPOSE:
+// - Runs the prediction engine and evaluates prediction rules.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 // export type PredictionInput = {
 //   temperature: number;
 //   currentAmp: number;
