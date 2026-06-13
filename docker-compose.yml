@@ -1,0 +1,40 @@
+version: '3.9'
+# This docker-compose file is for local development with a local PostgreSQL database.
+# For production, ensure DATABASE_URL environment variable is set to your external database (e.g., Supabase).
+services:
+  backend:
+    build: .
+    container_name: geomine-backend
+    ports:
+      - '4000:4000'
+    env_file:
+      - .env
+    environment:
+      # DATABASE_URL from .env will be used. If not set, uses local postgres service.
+      # For production with external database (Supabase, AWS RDS, etc.), ensure DATABASE_URL is set in .env
+      NODE_ENV: ${NODE_ENV:-development}
+    depends_on:
+      - postgres
+    volumes:
+      - .:/usr/src/app
+    command: npm run dev
+  postgres:
+    image: postgres:15-alpine
+    container_name: geomine-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: geomine_user
+      POSTGRES_PASSWORD: geomine_password
+      POSTGRES_DB: geomine_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U geomine_user -d geomine_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  postgres_data:
+    name: geomine_postgres_data
