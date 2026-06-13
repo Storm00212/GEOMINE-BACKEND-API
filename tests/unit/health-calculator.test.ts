@@ -1,3 +1,9 @@
+// FILE PURPOSE:
+// - Unit tests for the health calculator feature.
+//
+// NOTE: This file currently contains paused implementation code for team review.
+//
+
 import { calculateHealthScore } from '../../src/modules/health/health-calculator.js';
 
 describe('Health Calculator', () => {
