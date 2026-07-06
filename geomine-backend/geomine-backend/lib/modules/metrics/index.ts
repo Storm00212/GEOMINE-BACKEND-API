@@ -1,0 +1,22 @@
+// Barrel file — existing imports from "@/lib/modules/metrics" keep working.
+export {
+  getReadingStats,
+  getFleetHealthSnapshot,
+  getMachineHealthSnapshot,
+  getOverloadDuration,
+  getPowerFactorTrend,
+  getEstimatedRul,
+  getFleetSummary,
+  getSpecificFuelConsumption,
+  getIdleDuration,
+  getMaintenanceRecommendation,
+  type ReadingStats,
+  type GeneratorHealthSnapshot,
+  type OverloadDuration,
+  type PowerFactorTrend,
+  type RulEstimate,
+  type FleetSummaryRow,
+  type SpecificFuelConsumption,
+  type IdleDuration,
+  type MaintenanceRecommendation,
+} from "./metrics.service";

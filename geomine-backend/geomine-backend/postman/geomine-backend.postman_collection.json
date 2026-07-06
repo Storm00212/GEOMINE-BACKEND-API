@@ -1,0 +1,251 @@
+{
+  "info": {
+    "name": "Geomine Backend",
+    "description": "Standalone backend API. Auth is a Bearer token (Supabase JWT) applied once at the collection level — get one instantly via `node scripts/dev-login.mjs <email>` (no email wait, no URL-clicking). Paste it into the 'access_token' variable and every request in this collection uses it automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:4000" },
+    { "key": "access_token", "value": "PASTE_TOKEN_FROM_dev-login.mjs_HERE" },
+    { "key": "machine_id", "value": "" },
+    { "key": "parameter_output_current_id", "value": "" },
+    { "key": "parameter_bearing_temp_id", "value": "" },
+    { "key": "reading_id", "value": "" },
+    { "key": "fault_id", "value": "" },
+    { "key": "date_from", "value": "2026-06-01" },
+    { "key": "date_to", "value": "2026-07-03" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Who am I",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/auth/me",
+            "description": "Confirms the token is valid and shows the resolved role — the fastest way to check auth is wired up correctly."
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Not a 401 (token is valid)', function () { pm.expect(pm.response.code).to.not.equal(401); });"
+            ]}
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Machines",
+      "item": [
+        {
+          "name": "List machines",
+          "request": { "method": "GET", "url": "{{base_url}}/api/machines", "description": "Any authenticated role." }
+        },
+        {
+          "name": "Create machine",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/machines",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Generator 4\",\n  \"location\": \"Site B\",\n  \"phaseType\": \"three_phase\"\n}" },
+            "description": "Admin only — try with a miner/IT token to confirm it 403s."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Parameters",
+      "item": [
+        {
+          "name": "List parameters",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/parameters?machine_type=generator&active_only=true",
+            "description": "Any authenticated role."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Readings",
+      "item": [
+        {
+          "name": "Log a reading",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/readings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"machineId\": \"{{machine_id}}\",\n  \"recordedAt\": \"2026-07-03T10:00:00Z\",\n  \"entries\": [\n    { \"parameterId\": \"{{parameter_output_current_id}}\", \"value\": 65 },\n    { \"parameterId\": \"{{parameter_bearing_temp_id}}\", \"value\": 72 }\n  ]\n}"
+            },
+            "description": "Role required: miner, it, or admin. Get parameter/machine UUIDs from Supabase Table Editor."
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Not a 401/403', function () { pm.expect(pm.response.code).to.not.be.oneOf([401, 403]); });",
+              "if (pm.response.code === 200) {",
+              "  const body = pm.response.json();",
+              "  if (body.readings && body.readings[0]) { pm.collectionVariables.set('reading_id', body.readings[0].id); }",
+              "}"
+            ]}
+          }]
+        },
+        {
+          "name": "My readings",
+          "request": { "method": "GET", "url": "{{base_url}}/api/readings/mine?limit=20" }
+        },
+        {
+          "name": "Correct a reading",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/readings/{{reading_id}}",
+            "body": { "mode": "raw", "raw": "{ \"value\": 70 }" },
+            "description": "it/admin only — try with a miner token to confirm it 403s."
+          }
+        },
+        {
+          "name": "Delete a reading",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/readings/{{reading_id}}",
+            "description": "Admin only — try with an IT token to confirm it 403s."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refuel Events",
+      "item": [
+        {
+          "name": "Log a refuel",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/refuel-events",
+            "body": { "mode": "raw", "raw": "{\n  \"machineId\": \"{{machine_id}}\",\n  \"litersAdded\": 50,\n  \"recordedAt\": \"2026-07-03T10:00:00Z\"\n}" }
+          }
+        },
+        {
+          "name": "List refuels for a machine",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/refuel-events?machine_id={{machine_id}}",
+            "description": "it/admin only."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fault Events",
+      "item": [
+        {
+          "name": "Log a fault",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/fault-events",
+            "body": { "mode": "raw", "raw": "{\n  \"machineId\": \"{{machine_id}}\",\n  \"code\": \"E-042\",\n  \"description\": \"Low oil pressure alarm\",\n  \"recordedAt\": \"2026-07-03T10:00:00Z\"\n}" }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "if (pm.response.code === 200) {",
+              "  const body = pm.response.json();",
+              "  if (body.event && body.event.id) { pm.collectionVariables.set('fault_id', body.event.id); }",
+              "}"
+            ]}
+          }]
+        },
+        {
+          "name": "List faults for a machine",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/fault-events?machine_id={{machine_id}}&unresolved_only=true",
+            "description": "it/admin only."
+          }
+        },
+        {
+          "name": "Resolve a fault",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/fault-events/{{fault_id}}/resolve",
+            "description": "it/admin only — try with a miner token to confirm it 403s."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Metrics & Dashboard",
+      "item": [
+        {
+          "name": "Dashboard (consolidated)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/dashboard", "description": "it/admin only." }
+        },
+        {
+          "name": "Fleet snapshot",
+          "request": { "method": "GET", "url": "{{base_url}}/api/metrics/fleet-snapshot", "description": "it/admin only." }
+        },
+        {
+          "name": "Machine snapshot",
+          "request": { "method": "GET", "url": "{{base_url}}/api/metrics/machine/{{machine_id}}", "description": "it/admin only." }
+        },
+        {
+          "name": "Machine detail (consolidated)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/machines/{{machine_id}}/detail",
+            "description": "it/admin only. Everything the machine detail page needs in one call."
+          }
+        },
+        {
+          "name": "Maintenance recommendation",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/machines/{{machine_id}}/recommendation?sample_size=10",
+            "description": "it/admin only. Rule-based, explainable — see the 'reasons' array in the response."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Machines for dropdown",
+          "request": { "method": "GET", "url": "{{base_url}}/api/reports/machines", "description": "it/admin only." }
+        },
+        {
+          "name": "Export CSV",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/reports/csv?machine_id={{machine_id}}&from={{date_from}}&to={{date_to}}",
+            "description": "it/admin only."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Invite user",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/admin/invite",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"someone@geomine.com\",\n  \"full_name\": \"Test Miner\",\n  \"role\": \"miner\"\n}" },
+            "description": "Admin ONLY — try with a miner or IT token to confirm it 403s."
+          }
+        }
+      ]
+    }
+  ]
+}
