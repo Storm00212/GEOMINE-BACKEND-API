@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "next dev -p 4000",
     "build": "next build",
-    "start": "next start -p 4000"
+    "start": "node ./scripts/wait-for-db.mjs && next start -p 4000"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.45.4",
