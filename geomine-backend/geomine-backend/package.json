@@ -7,18 +7,18 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "dev": "next dev -p 4000",
+    "dev": "node ./scripts/wait-for-db.mjs && next dev -p 4000",
     "build": "next build",
     "start": "node ./scripts/wait-for-db.mjs && next start -p 4000"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.45.4",
+    "dotenv": "^17.4.2",
     "next": "14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@next/swc-win32-x64-msvc": "14.2.5",
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",
     "typescript": "^5.5.3"
