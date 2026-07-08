@@ -21,7 +21,6 @@
     "recharts": "^2.12.7"
   },
   "devDependencies": {
-    "@next/swc-win32-x64-msvc": "14.2.5",
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
