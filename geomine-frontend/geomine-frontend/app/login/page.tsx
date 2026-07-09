@@ -120,18 +120,30 @@ export default function LoginPage() {
         <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              {isSignup ? "Create an account" : "Sign in"}
+              {isReset
+                ? "Reset password"
+                : isSignup
+                ? "Create an account"
+                : "Sign in"}
             </h2>
             <button
               type="button"
               onClick={() => {
-                setMode(isSignup ? "login" : "signup");
+                if (isReset) {
+                  setMode("login");
+                } else {
+                  setMode(isSignup ? "login" : "signup");
+                }
                 setStatus("idle");
                 setMessage(null);
               }}
               className="text-sm text-gray-500 hover:text-gray-900"
             >
-              {isSignup ? "Already have an account?" : "Need an account?"}
+              {isReset
+                ? "Back to sign in"
+                : isSignup
+                ? "Already have an account?"
+                : "Need an account?"}
             </button>
           </div>
 
@@ -151,20 +163,22 @@ export default function LoginPage() {
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                placeholder="********"
-              />
-            </div>
+            {!isReset && (
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  placeholder="********"
+                />
+              </div>
+            )}
 
             {isSignup && (
               <>
@@ -206,13 +220,31 @@ export default function LoginPage() {
               className="w-full rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
               {status === "submitting"
-                ? isSignup
+                ? isReset
+                  ? "Sending reset email…"
+                  : isSignup
                   ? "Creating account…"
                   : "Signing in…"
+                : isReset
+                ? "Send reset email"
                 : isSignup
                 ? "Sign up"
                 : "Sign in"}
             </button>
+
+            {!isReset && !isSignup && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("reset");
+                  setStatus("idle");
+                  setMessage(null);
+                }}
+                className="w-full text-left text-sm text-gray-500 hover:text-gray-900"
+              >
+                Forgot your password?
+              </button>
+            )}
 
             {message && (
               <p
