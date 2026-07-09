@@ -55,14 +55,22 @@ export default function LoginPage() {
         return;
       }
 
-      setStatus("success");
-      if (data.session) {
-        router.replace("/");
-      } else {
-        setMessage(
-          "Account created. Check your email to confirm your address before signing in."
-        );
+      if (!data.session) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (signInError) {
+          setStatus("error");
+          setMessage(
+            "Account created, but could not sign in automatically. Please sign in manually."
+          );
+          return;
+        }
       }
+
+      router.replace("/");
       return;
     }
 
