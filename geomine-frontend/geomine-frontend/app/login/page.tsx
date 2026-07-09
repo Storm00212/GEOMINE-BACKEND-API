@@ -19,6 +19,9 @@ export default function LoginPage() {
 
   const isSignup = mode === "signup";
   const isReset = mode === "reset";
+  const appOrigin =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (typeof window !== "undefined" ? window.location.origin : "");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +32,7 @@ export default function LoginPage() {
 
     if (isReset) {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/login`,
+        redirectTo: `${appOrigin}/login`,
       });
 
       if (error) {
