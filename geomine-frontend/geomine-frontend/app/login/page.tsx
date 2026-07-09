@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-type AuthMode = "login" | "signup";
+type AuthMode = "login" | "signup" | "reset";
 type Status = "idle" | "submitting" | "success" | "error";
 
 export default function LoginPage() {
@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   const isSignup = mode === "signup";
+  const isReset = mode === "reset";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,6 +26,24 @@ export default function LoginPage() {
     setMessage(null);
 
     const supabase = createClient();
+
+    if (isReset) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/login`,
+      });
+
+      if (error) {
+        setStatus("error");
+        setMessage(error.message);
+        return;
+      }
+
+      setStatus("success");
+      setMessage(
+        "If that email is registered, a password reset link has been sent. Check your inbox."
+      );
+      return;
+    }
 
     if (isSignup) {
       if (password !== confirmPassword) {
@@ -64,7 +83,7 @@ export default function LoginPage() {
         if (signInError) {
           setStatus("error");
           setMessage(
-            "Account created, but could not sign in automatically. Please sign in manually."
+            "Account created, but login failed. If you have email confirmation enabled, please check your inbox, or use Reset Password."
           );
           return;
         }
