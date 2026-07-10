@@ -5,13 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 // unaffected by the backend split) and forwards it to the separate
 // backend as a Bearer token. The backend verifies that token itself; this
 // file never talks to Postgres directly.
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-if (!BACKEND_URL) {
-  throw new Error(
-    "NEXT_PUBLIC_BACKEND_URL must be set in production. Please configure the frontend environment variable."
-  );
-}
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  "https://geomine-backend-api-backend.onrender.com";
 
 export async function backendFetchServer(path: string, init?: RequestInit): Promise<Response> {
   const supabase = createClient();
