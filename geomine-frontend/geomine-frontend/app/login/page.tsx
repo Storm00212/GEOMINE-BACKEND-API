@@ -21,7 +21,7 @@ export default function LoginPage() {
   const isReset = mode === "reset";
   const appOrigin =
     process.env.NEXT_PUBLIC_APP_URL ||
-    (typeof window !== "undefined" ? window.location.origin : "");
+    "https://geomine-backend-api-frontend.onrender.com";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
