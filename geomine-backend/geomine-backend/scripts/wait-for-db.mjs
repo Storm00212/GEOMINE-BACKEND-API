@@ -1,17 +1,26 @@
+import fs from "node:fs";
+import path from "node:path";
 import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
-
 import { createClient } from "@supabase/supabase-js";
+
+const appRoot = process.cwd();
+const envFiles = [path.join(appRoot, ".env.local"), path.join(appRoot, ".env")];
+
+for (const envFile of envFiles) {
+  if (fs.existsSync(envFile)) {
+    dotenv.config({ path: envFile });
+  }
+}
 
 function log(...args) {
   console.log(new Date().toISOString(), ...args);
 }
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment.");
+  console.error("Missing SUPABASE_URL or Supabase service role key in environment.");
   process.exit(1);
 }
 
@@ -30,16 +39,13 @@ async function checkDb() {
     try {
       log(`DB check attempt ${attempt}/${maxRetries}`);
 
-      // Try a lightweight read from a known table created by migrations.
-      const { data, error, status } = await client.from("machines").select("id").limit(1);
+      const { error } = await client.from("profiles").select("id").limit(1);
 
       if (error) {
-        // Supabase client surface returns an error object with `status` and `message`.
-        log("Supabase returned error", { status: error.status ?? status, message: error.message });
         throw error;
       }
 
-      log("Database reachable (machines table query succeeded)");
+      log("Database reachable (profiles table query succeeded)");
       return 0;
     } catch (err) {
       const status = err?.status ?? err?.code ?? "unknown";
