@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AuthNav from "./components/auth-nav";
 
 export const metadata: Metadata = {
   title: "Geomine PMS",
@@ -13,7 +14,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gray-50 text-gray-900">{children}</body>
+      <body className="min-h-screen bg-gray-50 text-gray-900">
+        <AuthNav />
+        {children}
+      </body>
     </html>
   );
 }
