@@ -6,13 +6,9 @@ import { createClient } from "@/lib/supabase/client";
 // cross-origin request — the backend's CORS allowlist and Bearer-token
 // auth (not cookies) are what make this work, rather than anything special
 // on this end beyond attaching the token.
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-if (!BACKEND_URL) {
-  throw new Error(
-    "NEXT_PUBLIC_BACKEND_URL must be set in production. Please configure the frontend environment variable."
-  );
-}
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  "https://geomine-backend-api-backend.onrender.com";
 
 export async function backendFetchClient(path: string, init?: RequestInit): Promise<Response> {
   const supabase = createClient();
