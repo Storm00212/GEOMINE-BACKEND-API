@@ -4,6 +4,8 @@ import { requireAuth } from "@/lib/modules/auth";
 import { handleApiError } from "@/lib/http";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/entry/bootstrap
 // Everything the entry form needs in one call: active machines + active
 // generator parameters. Any authenticated role can read this (miners need
