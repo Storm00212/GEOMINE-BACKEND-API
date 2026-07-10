@@ -19,9 +19,7 @@ export default function LoginPage() {
 
   const isSignup = mode === "signup";
   const isReset = mode === "reset";
-  const appOrigin =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "https://geomine-backend-api-frontend.onrender.com";
+  const appOrigin = "https://geomine-backend-api-frontend.onrender.com";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
