@@ -12,8 +12,18 @@ import { NextResponse, type NextRequest } from "next/server";
 // dance — just an origin allowlist and the Authorization header allowed
 // through.
 function getAllowedOrigins(): string[] {
-  const raw = process.env.ALLOWED_ORIGINS || "http://localhost:3000";
-  return raw.split(",").map((o) => o.trim()).filter(Boolean);
+  const defaults = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://geomine-backend-api-frontend.onrender.com",
+  ];
+  const raw = process.env.ALLOWED_ORIGINS || "";
+  const configured = raw
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+  return Array.from(new Set([...defaults, ...configured]));
 }
 
 function corsHeaders(origin: string | null): Headers {
@@ -22,6 +32,7 @@ function corsHeaders(origin: string | null): Headers {
 
   if (origin && allowed.includes(origin)) {
     headers.set("Access-Control-Allow-Origin", origin);
+    headers.set("Vary", "Origin");
   }
   headers.set("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
   headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
