@@ -16,12 +16,15 @@ export async function backendFetchClient(path: string, init?: RequestInit): Prom
     data: { session },
   } = await supabase.auth.getSession();
 
+  const headers = new Headers(init?.headers || {});
+  headers.set("Content-Type", "application/json");
+
+  if (session?.access_token) {
+    headers.set("Authorization", `Bearer ${session.access_token}`);
+  }
+
   return fetch(`${BACKEND_URL}${path}`, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
-      ...(init?.headers || {}),
-    },
+    headers,
   });
 }
