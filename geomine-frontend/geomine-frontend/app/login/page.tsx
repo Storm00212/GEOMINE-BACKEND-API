@@ -30,7 +30,7 @@ export default function LoginPage() {
 
     if (isReset) {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${appOrigin}/login`,
+        redirectTo: `${appOrigin}/auth/callback`,
       });
 
       if (error) {
