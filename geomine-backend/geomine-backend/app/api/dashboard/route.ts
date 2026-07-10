@@ -5,6 +5,8 @@ import { requireRole } from "@/lib/modules/auth";
 import { handleApiError } from "@/lib/http";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/dashboard
 // Bundles everything the fleet overview page needs into one round-trip
 // instead of four separate calls — meaningful on a mobile network, and one
