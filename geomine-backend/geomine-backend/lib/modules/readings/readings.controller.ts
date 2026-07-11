@@ -29,11 +29,13 @@ export async function logReadingsController(request: NextRequest) {
   }
 }
 
-/** GET /api/readings/mine — a user's own submitted readings. */
+  /** GET /api/readings/mine — a user's own submitted readings. */
 export async function myReadingsController(request: NextRequest) {
   try {
-    const limitParam = request.nextUrl.searchParams.get("limit");
-    const limit = limitParam ? parseInt(limitParam, 10) : 50;
+    const { searchParams } = new URL(request.url);
+    const limitParam = searchParams.get("limit");
+    const rawLimit = limitParam ? parseInt(limitParam, 10) : 50;
+    const limit = Number.isNaN(rawLimit) || rawLimit < 1 ? 50 : Math.min(rawLimit, 500);
     const readings = await listMyReadings(limit);
     return NextResponse.json({ readings });
   } catch (error) {
