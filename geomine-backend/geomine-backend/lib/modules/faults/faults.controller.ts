@@ -23,11 +23,12 @@ export async function logFaultController(request: NextRequest) {
 export async function listFaultController(request: NextRequest) {
   try {
     await requireRole(["it", "admin"]);
-    const machineId = request.nextUrl.searchParams.get("machine_id");
+    const { searchParams } = new URL(request.url);
+    const machineId = searchParams.get("machine_id");
     if (!machineId) {
       return NextResponse.json({ error: "machine_id query param is required" }, { status: 400 });
     }
-    const unresolvedOnly = request.nextUrl.searchParams.get("unresolved_only") === "true";
+    const unresolvedOnly = searchParams.get("unresolved_only") === "true";
     const events = await listFaultEvents(machineId, { unresolvedOnly, limit: 50 });
     return NextResponse.json({ events });
   } catch (error) {
