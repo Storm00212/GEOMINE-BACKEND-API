@@ -23,14 +23,15 @@ export async function logRefuelController(request: NextRequest) {
 export async function listRefuelController(request: NextRequest) {
   try {
     await requireRole(["it", "admin"]);
-    const machineId = request.nextUrl.searchParams.get("machine_id");
+    const { searchParams } = new URL(request.url);
+    const machineId = searchParams.get("machine_id");
     if (!machineId) {
       return NextResponse.json({ error: "machine_id query param is required" }, { status: 400 });
     }
     const events = await listRefuelEvents(machineId, {
       limit: 50,
-      from: request.nextUrl.searchParams.get("from") ?? undefined,
-      to: request.nextUrl.searchParams.get("to") ?? undefined,
+      from: searchParams.get("from") ?? undefined,
+      to: searchParams.get("to") ?? undefined,
     });
     return NextResponse.json({ events });
   } catch (error) {
