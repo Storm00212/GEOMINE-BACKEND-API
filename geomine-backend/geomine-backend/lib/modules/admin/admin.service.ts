@@ -8,8 +8,9 @@ export interface InviteUserInput {
   role: UserRole;
 }
 
-export async function inviteUser(input: InviteUserInput): Promise<void> {
-  await requireRole(["admin"]);
+export async function inviteUser(request: Request, input: InviteUserInput): Promise<void> {
+  await requireRole(request, ["admin"]);
+
 
   if (!input.email || !["miner", "it", "admin"].includes(input.role)) {
     throw new Error("Invalid invite payload");
