@@ -13,10 +13,10 @@ export function toCsv(rows: ExportRow[]): string {
   const body = rows
     .map((r) =>
       [
-        r.machines?.name ?? "",
-        r.parameter_definitions?.label ?? "",
+        r.machine_name ?? "",
+        r.parameter_label ?? "",
         r.value,
-        r.parameter_definitions?.unit ?? "",
+        r.parameter_unit ?? "",
         new Date(r.recorded_at).toISOString(),
         r.flagged ? "yes" : "no",
         r.entry_method,
