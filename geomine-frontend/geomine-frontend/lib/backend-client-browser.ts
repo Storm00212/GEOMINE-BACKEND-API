@@ -1,30 +1,24 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
+import { getAccessToken } from "@/lib/auth/token-storage";
 
 // Used from Client Components (the browser). This is a genuine
 // cross-origin request — the backend's CORS allowlist and Bearer-token
-// auth (not cookies) are what make this work, rather than anything special
-// on this end beyond attaching the token.
+// auth are what make this work.
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   "https://geomine-backend-api-backend.onrender.com";
 
 export async function backendFetchClient(path: string, init?: RequestInit): Promise<Response> {
-  const supabase = createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
   const headers = new Headers(init?.headers || {});
   headers.set("Content-Type", "application/json");
 
-  if (session?.access_token) {
-    headers.set("Authorization", `Bearer ${session.access_token}`);
-  }
+  const token = getAccessToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
 
   return fetch(`${BACKEND_URL}${path}`, {
     ...init,
     headers,
   });
 }
+
