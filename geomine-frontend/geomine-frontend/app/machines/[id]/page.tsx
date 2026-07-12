@@ -15,8 +15,8 @@ import {
   DividerLabel,
   AlertBox,
   HealthGauge,
-  statusFromHealth,
 } from "@/app/components/geomine-theme";
+import { statusFromHealth } from "@/app/components/theme-utils";
 import MachineChart from "./machine-chart";
 import MetricsPanel from "./metrics-panel";
 import RecommendationCard from "./recommendation-card";
