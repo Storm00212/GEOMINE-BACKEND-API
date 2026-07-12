@@ -1,3 +1,111 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --bg: #181b21;
+  --panel: #21252d;
+  --panel-alt: #282d37;
+  --border: #363c48;
+  --border-soft: #2c313c;
+  --text: #edeff3;
+  --text-dim: #8d95a3;
+  --text-faint: #5c6270;
+  --amber: #e8a33d;
+  --green: #4fae7c;
+  --red: #e0574f;
+  --cyan: #4fc3d9;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: #181b21;
+  color: #edeff3;
+  font-family: var(--font-sans), "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Make the dark scrollbars feel intentional on the engineering UI */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #14161b;
+}
+::-webkit-scrollbar-thumb {
+  background: #2c313c;
+  border-radius: 6px;
+  border: 2px solid #14161b;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #363c48;
+}
+
+@layer components {
+  /* Status dot with soft pulse halo */
+  .gm-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .gm-dot.green {
+    background: var(--green);
+    box-shadow: 0 0 0 3px rgba(79, 174, 124, 0.18);
+  }
+  .gm-dot.amber {
+    background: var(--amber);
+    box-shadow: 0 0 0 3px rgba(232, 163, 61, 0.18);
+    animation: dot-pulse 2s ease-in-out infinite;
+  }
+  .gm-dot.red {
+    background: var(--red);
+    box-shadow: 0 0 0 3px rgba(224, 87, 79, 0.18);
+    animation: dot-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+/* Recharts dark theme overrides */
+.recharts-cartesian-grid line {
+  stroke: #2c313c;
+}
+.recharts-text {
+  fill: #8d95a3;
+}
+.recharts-tooltip-wrapper:focus {
+  outline: none;
+}
+.gm-chart-tooltip {
+  background: #21252d;
+  border: 1px solid #363c48;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #edeff3;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.gm-chart-tooltip .gm-tt-label {
+  color: #8d95a3;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.gm-chart-tooltip .gm-tt-value {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: #4fc3d9;
+}
