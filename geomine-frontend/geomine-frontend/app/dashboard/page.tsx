@@ -20,19 +20,78 @@ export default async function DashboardPage() {
     });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Fleet overview</h1>
-        <Link href="/reports" className="text-sm text-gray-600 underline">
-          Export data →
-        </Link>
+    <div className="shell" style={{ display: "flex", minHeight: "100vh" }}>
+      <div className="sidebar">
+        <div
+          style={{
+            width: 220,
+            flexShrink: 0,
+            background: "#14161B",
+            borderRight: "1px solid #2C313C",
+            padding: "24px 16px",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div style={{ padding: "0 8px 24px", borderBottom: "1px solid #2C313C", marginBottom: 20 }}>
+            <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: 0.5 }}>
+              GEOMINE<span style={{ color: "#E8A33D" }}> · PMS</span>
+            </div>
+            <div style={{ fontFamily: "monospace", fontSize: 10, color: "#5C6270", letterSpacing: 1.2, marginTop: 4 }}>
+              PREDICTIVE MAINTENANCE
+            </div>
+          </div>
+
+          <div>
+            <NavButton
+              active={false}
+              label="Log a reading"
+              role="MINER"
+              href="/entry"
+            />
+            <NavButton
+              active={true}
+              label="Fleet overview"
+              role="IT · ADMIN"
+              href="/dashboard"
+            />
+            <NavButton active={false} label="Generator" role="IT · ADMIN" href="/machines" />
+            <NavButton active={false} label="Export data" role="IT · ADMIN" href="/reports" />
+          </div>
+
+          <div style={{ marginTop: "auto", padding: 12, borderTop: "1px solid #2C313C", display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#1E3438", color: "#4FC3D9", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              SK
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 500 }}>Session</div>
+              <div style={{ fontFamily: "monospace", fontSize: 9.5, color: "#5C6270" }}>IT</div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <StatCard label="Generators" value={String(machines.length)} />
-        <StatCard label="Readings (recent)" value={String(recentReadings.length)} />
-        <StatCard label="Flagged (out of range)" value={String(flaggedReadings.length)} tone="warn" />
-      </div>
+      <div className="main" style={{ flex: 1, padding: "32px 40px", maxWidth: 900 }}>
+        <div className="page-head" style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+          <h1 style={{ fontSize: 19, fontWeight: 600, margin: 0 }}>Fleet overview</h1>
+          <Link
+            href="/reports"
+            style={{ fontSize: 12.5, color: "#4FC3D9", textDecoration: "none" }}
+          >
+            Export data →
+          </Link>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <StatCard label="Generators" value={String(machines.length)} />
+          <StatCard label="Readings (recent)" value={String(recentReadings.length)} />
+          <StatCard
+            label="Flagged (out of range)"
+            value={String(flaggedReadings.length)}
+            tone="warn"
+          />
+        </div>
+
 
       <section className="mt-8">
         <div className="flex items-center justify-between">
