@@ -1,17 +1,25 @@
-import { createClient } from "@/lib/supabase/request-client";
+import { query } from "@/lib/db";
 import type { ParameterDefinition } from "@/types/database";
 
 export async function selectParameterDefinitions(opts?: {
   machineType?: "generator";
   activeOnly?: boolean;
 }): Promise<ParameterDefinition[]> {
-  const supabase = createClient();
-  let query = supabase.from("parameter_definitions").select("*").order("sort_order");
+  const conditions: string[] = [];
+  const params: any[] = [];
 
-  if (opts?.machineType) query = query.eq("machine_type", opts.machineType);
-  if (opts?.activeOnly) query = query.eq("active", true);
+  if (opts?.machineType) {
+    params.push(opts.machineType);
+    conditions.push(`machine_type = $${params.length}`);
+  }
+  if (opts?.activeOnly) {
+    params.push(true);
+    conditions.push(`active = $${params.length}`);
+  }
 
-  const { data, error } = await query;
-  if (error) throw error;
-  return data ?? [];
+  const where = conditions.length ? `where ${conditions.join(" and ")}` : "";
+  return query<ParameterDefinition>(
+    `select * from parameter_definitions ${where} order by sort_order`,
+    params
+  );
 }
