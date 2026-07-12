@@ -7,7 +7,8 @@ import { NextRequest, NextResponse } from "next/server";
 /** GET /api/reports/csv — it/admin only. */
 export async function exportCsvController(request: NextRequest) {
   try {
-    await requireRole(["it", "admin"]);
+    await requireRole(request, ["it", "admin"]);
+
 
     const { searchParams } = request.nextUrl;
     const rows = await getReadingsForExport({
@@ -32,9 +33,9 @@ export async function exportCsvController(request: NextRequest) {
 /** GET /api/reports/machines — it/admin only. Supporting endpoint for the
  *  reports page's machine dropdown; delegates to the machines module
  *  rather than duplicating machine access inside "reports". */
-export async function listReportMachinesController() {
+export async function listReportMachinesController(request: NextRequest) {
   try {
-    await requireRole(["it", "admin"]);
+    await requireRole(request, ["it", "admin"]);
     const machines = await listMachines();
     return NextResponse.json({ machines });
   } catch (error) {
