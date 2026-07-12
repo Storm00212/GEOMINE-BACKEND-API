@@ -8,8 +8,8 @@ import {
   DividerLabel,
   SectionTitle,
   FleetRow,
-  statusFromHealth,
 } from "@/app/components/geomine-theme";
+import { statusFromHealth } from "@/app/components/theme-utils";
 
 interface MachinesData {
   machines: Machine[];
