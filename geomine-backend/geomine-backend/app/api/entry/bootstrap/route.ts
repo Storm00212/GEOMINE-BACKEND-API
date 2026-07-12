@@ -10,9 +10,10 @@ export const dynamic = "force-dynamic";
 // Everything the entry form needs in one call: active machines + active
 // generator parameters. Any authenticated role can read this (miners need
 // it to render the form).
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    await requireAuth();
+    await requireAuth(request);
+
 
     const [machines, parameters] = await Promise.all([
       listMachines({ activeOnly: true }),
