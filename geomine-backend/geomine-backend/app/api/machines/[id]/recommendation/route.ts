@@ -11,7 +11,8 @@ import { NextRequest, NextResponse } from "next/server";
 // the `reasons` array is there so it can be checked, not just trusted.
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    await requireRole(["it", "admin"]);
+    await requireRole(request, ["it", "admin"]);
+
 
     const { searchParams } = new URL(request.url);
     const sampleSizeParam = searchParams.get("sample_size");
