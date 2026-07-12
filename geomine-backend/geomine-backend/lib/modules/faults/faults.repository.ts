@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/request-client";
+import { query } from "@/lib/db";
 import type { FaultEvent } from "@/types/database";
 
 export async function insertFaultEvent(row: {
@@ -7,39 +7,44 @@ export async function insertFaultEvent(row: {
   description: string | null;
   recorded_at: string;
   entered_by: string;
-}) {
-  const supabase = createClient();
-  return supabase.from("fault_events").insert(row).select().single();
+}): Promise<FaultEvent> {
+  const rows = await query<FaultEvent>(
+    `insert into fault_events (machine_id, code, description, recorded_at, entered_by)
+     values ($1, $2, $3, $4, $5)
+     returning *`,
+    [row.machine_id, row.code, row.description, row.recorded_at, row.entered_by]
+  );
+  return rows[0];
 }
 
 export async function selectFaultEvents(
   machineId: string,
   opts?: { unresolvedOnly?: boolean; limit?: number }
 ): Promise<FaultEvent[]> {
-  const supabase = createClient();
-  let query = supabase
-    .from("fault_events")
-    .select("*")
-    .eq("machine_id", machineId)
-    .order("recorded_at", { ascending: false });
+  const conditions = ["machine_id = $1"];
+  const params: any[] = [machineId];
 
-  if (opts?.unresolvedOnly) query = query.eq("resolved", false);
-  if (opts?.limit) query = query.limit(opts.limit);
+  if (opts?.unresolvedOnly) {
+    params.push(true);
+    conditions.push(`resolved = $${params.length}`);
+  }
 
-  const { data, error } = await query;
-  if (error) throw error;
-  return data ?? [];
+  const where = conditions.join(" and ");
+  const limitClause = opts?.limit ? ` limit ${Number(opts.limit)}` : "";
+
+  return query<FaultEvent>(
+    `select * from fault_events where ${where} order by recorded_at desc ${limitClause}`,
+    params
+  );
 }
 
 export async function updateFaultResolved(id: string): Promise<FaultEvent> {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("fault_events")
-    .update({ resolved: true, resolved_at: new Date().toISOString() })
-    .eq("id", id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  const rows = await query<FaultEvent>(
+    `update fault_events
+       set resolved = true, resolved_at = now()
+     where id = $1
+     returning *`,
+    [id]
+  );
+  return rows[0];
 }
