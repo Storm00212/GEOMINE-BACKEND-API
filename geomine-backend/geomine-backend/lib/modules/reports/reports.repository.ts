@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/request-client";
+import { query } from "@/lib/db";
 
 export interface ExportFilters {
   machineId?: string;
@@ -7,8 +7,9 @@ export interface ExportFilters {
 }
 
 export interface ExportRow {
-  machines: { name: string } | null;
-  parameter_definitions: { label: string; unit: string | null } | null;
+  machine_name: string | null;
+  parameter_label: string | null;
+  parameter_unit: string | null;
   value: number;
   recorded_at: string;
   flagged: boolean;
@@ -16,19 +17,38 @@ export interface ExportRow {
 }
 
 export async function selectReadingsForExport(filters: ExportFilters): Promise<ExportRow[]> {
-  const supabase = createClient();
-  let query = supabase
-    .from("readings")
-    .select(
-      "value, recorded_at, flagged, entry_method, machines(name), parameter_definitions(label, unit)"
-    )
-    .order("recorded_at", { ascending: true });
+  const conditions: string[] = [];
+  const params: any[] = [];
 
-  if (filters.machineId) query = query.eq("machine_id", filters.machineId);
-  if (filters.from) query = query.gte("recorded_at", filters.from);
-  if (filters.to) query = query.lte("recorded_at", `${filters.to}T23:59:59`);
+  if (filters.machineId) {
+    params.push(filters.machineId);
+    conditions.push(`r.machine_id = $${params.length}`);
+  }
+  if (filters.from) {
+    params.push(filters.from);
+    conditions.push(`r.recorded_at >= $${params.length}`);
+  }
+  if (filters.to) {
+    params.push(`${filters.to}T23:59:59`);
+    conditions.push(`r.recorded_at <= $${params.length}`);
+  }
 
-  const { data, error } = await query;
-  if (error) throw error;
-  return (data ?? []) as unknown as ExportRow[];
+  const where = conditions.length ? `where ${conditions.join(" and ")}` : "";
+
+  return query<ExportRow>(
+    `select
+       m.name as machine_name,
+       p.label as parameter_label,
+       p.unit as parameter_unit,
+       r.value,
+       r.recorded_at,
+       r.flagged,
+       r.entry_method
+     from readings r
+     join machines m on m.id = r.machine_id
+     join parameter_definitions p on p.id = r.parameter_id
+     ${where}
+     order by r.recorded_at asc`,
+    params
+  );
 }
