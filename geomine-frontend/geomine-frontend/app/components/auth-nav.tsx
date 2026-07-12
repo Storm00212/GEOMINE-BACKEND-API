@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { usePathname, useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { clearAccessToken, getAccessToken } from "@/lib/auth/token-storage";
 
 export default function AuthNav() {
   const pathname = usePathname();
@@ -11,36 +12,23 @@ export default function AuthNav() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
-
-    const syncSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(Boolean(session));
-      setIsLoading(false);
-    };
-
-    syncSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(Boolean(session));
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    setIsAuthenticated(Boolean(getAccessToken()));
+    setIsLoading(false);
   }, []);
 
-  if (isLoading || pathname === "/login" || pathname.startsWith("/auth") || pathname === "/reset-password") {
+  if (
+    isLoading ||
+    pathname === "/login" ||
+    pathname.startsWith("/auth") ||
+    pathname === "/reset-password"
+  ) {
     return null;
   }
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
-  async function handleSignOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+  function handleSignOut() {
+    clearAccessToken();
     router.replace("/login");
   }
 
@@ -56,3 +44,4 @@ export default function AuthNav() {
     </div>
   );
 }
+
