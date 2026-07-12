@@ -28,3 +28,15 @@ export function createClient() {
 
   const authHeader = headers().get("authorization");
   const token = authHeader?.replace(/^Bearer\s+/i, "");
+
+  return createSupabaseClient(url, anonKey, {
+    global: {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
+
