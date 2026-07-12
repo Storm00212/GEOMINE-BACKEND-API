@@ -20,9 +20,10 @@ import { NextResponse } from "next/server";
 // parameter catalog, the full metrics snapshot, and the maintenance
 // recommendation — into one round-trip instead of the ten separate calls
 // this used to be as direct in-process module calls.
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
-    await requireRole(["it", "admin"]);
+    await requireRole(request, ["it", "admin"]);
+
 
     const [
       machine,
