@@ -9,6 +9,14 @@ import type {
   IdleDuration,
   MaintenanceRecommendation,
 } from "@/types/metrics";
+import {
+  AppShell,
+  Card,
+  DividerLabel,
+  AlertBox,
+  HealthGauge,
+  statusFromHealth,
+} from "@/app/components/geomine-theme";
 import MachineChart from "./machine-chart";
 import MetricsPanel from "./metrics-panel";
 import RecommendationCard from "./recommendation-card";
@@ -54,29 +62,53 @@ export default async function MachinePage({ params }: { params: { id: string } }
     openFaults: [],
   });
 
+  const healthTone = statusFromHealth(snapshot?.health_index);
+
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="text-xl font-semibold">{machine?.name}</h1>
-      <p className="text-sm text-gray-500">{machine?.location}</p>
+    <AppShell active="machines">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-[19px] font-semibold">{machine?.name ?? "Generator"}</h1>
+          <p className="mt-1 text-[13px] text-ink-dim">{machine?.location ?? "—"}</p>
+        </div>
+        {snapshot && (
+          <div className="flex items-center gap-3 rounded-lg border border-line-soft bg-panel px-4 py-2">
+            <HealthGauge value={snapshot.health_index} size={72} />
+            <div className="text-right">
+              <div className="font-mono text-[10.5px] uppercase tracking-[1px] text-ink-faint">
+                loading
+              </div>
+              <div className="font-mono text-[15px] font-semibold text-cyan">
+                {snapshot.loading_pct ?? "—"}%
+              </div>
+              <div className="mt-1 font-mono text-[9.5px] text-ink-faint">
+                priority {snapshot.maintenance_priority_score ?? "—"}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {recommendation && <RecommendationCard recommendation={recommendation} />}
 
       {openFaults.length > 0 && (
-        <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3">
-          <p className="text-sm font-medium text-red-800">
-            {openFaults.length} open fault{openFaults.length > 1 ? "s" : ""}
-          </p>
-          <ul className="mt-1 space-y-1 text-sm text-red-700">
-            {openFaults.map((f) => (
-              <li key={f.id}>
-                {f.code}
-                {f.description ? ` — ${f.description}` : ""}{" "}
-                <span className="text-xs text-red-400">
-                  ({new Date(f.recorded_at).toLocaleDateString()})
-                </span>
-              </li>
-            ))}
-          </ul>
+        <div className="mt-4 space-y-2">
+          <AlertBox tint="red">
+            <div>
+              <div className="font-semibold text-red">{openFaults.length} open fault{openFaults.length > 1 ? "s" : ""}</div>
+              <ul className="mt-1 space-y-0.5 text-[12.5px] text-red/90">
+                {openFaults.map((f) => (
+                  <li key={f.id}>
+                    {f.code}
+                    {f.description ? ` — ${f.description}` : ""}{" "}
+                    <span className="font-mono text-[11px] text-red/60">
+                      ({new Date(f.recorded_at).toLocaleDateString()})
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </AlertBox>
         </div>
       )}
 
@@ -91,7 +123,8 @@ export default async function MachinePage({ params }: { params: { id: string } }
         />
       )}
 
+      <DividerLabel>Parameter history</DividerLabel>
       <MachineChart readings={readings} parameters={parameters} />
-    </div>
+    </AppShell>
   );
 }
