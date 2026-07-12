@@ -20,8 +20,14 @@ export async function backendFetchServer(path: string, init?: RequestInit): Prom
 
 /** Convenience for the common case: fetch and parse JSON, or return a fallback on failure. */
 export async function backendGetJson<T>(path: string, fallback: T): Promise<T> {
-  const res = await backendFetchServer(path);
-  if (!res.ok) return fallback;
-  return res.json();
+  try {
+    const res = await backendFetchServer(path);
+    if (!res.ok) return fallback;
+    return res.json();
+  } catch {
+    // Network/unreachable backend — degrade to the empty fallback state
+    // rather than crashing the page render.
+    return fallback;
+  }
 }
 
