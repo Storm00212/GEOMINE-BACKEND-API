@@ -6,7 +6,8 @@ import { NextRequest, NextResponse } from "next/server";
 /** GET /api/parameters — any authenticated user. */
 export async function listParametersController(request: NextRequest) {
   try {
-    await requireAuth();
+    await requireAuth(request);
+
     const machineType = request.nextUrl.searchParams.get("machine_type") as "generator" | null;
     const activeOnly = request.nextUrl.searchParams.get("active_only") === "true";
 
