@@ -10,8 +10,9 @@ export interface LogRefuelInput {
   notes?: string;
 }
 
-export async function logRefuelEvent(input: LogRefuelInput): Promise<RefuelEvent> {
-  const auth = await requireRole(["miner", "it", "admin"]);
+export async function logRefuelEvent(input: LogRefuelInput, request: Request): Promise<RefuelEvent> {
+  const auth = await requireRole(request, ["miner", "it", "admin"]);
+
 
   if (!input.machineId) throw new ValidationError("machineId is required");
   if (typeof input.litersAdded !== "number" || input.litersAdded <= 0) {
