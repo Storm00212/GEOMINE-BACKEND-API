@@ -4,6 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/auth/api";
 import { setAccessToken } from "@/lib/auth/token-storage";
+import {
+  AuthShell,
+  AuthMessage,
+  Field,
+  TextInput,
+  SelectInput,
+  Button,
+} from "@/components/geomine-theme";
 
 type AuthMode = "login" | "signup";
 
