@@ -7,13 +7,16 @@ import { NextRequest, NextResponse } from "next/server";
 export async function logRefuelController(request: NextRequest) {
   try {
     const body = await request.json();
-    const event = await logRefuelEvent({
-      machineId: body.machineId,
+    const event = await logRefuelEvent(
+      {
+        machineId: body.machineId,
+
       litersAdded: body.litersAdded,
       recordedAt: body.recordedAt,
       notes: body.notes,
-    });
+    }, request);
     return NextResponse.json({ event });
+
   } catch (error) {
     return handleApiError(error);
   }
@@ -22,7 +25,8 @@ export async function logRefuelController(request: NextRequest) {
 /** GET /api/refuel-events?machine_id=... — it/admin only. */
 export async function listRefuelController(request: NextRequest) {
   try {
-    await requireRole(["it", "admin"]);
+    await requireRole(request, ["it", "admin"]);
+
     const { searchParams } = new URL(request.url);
     const machineId = searchParams.get("machine_id");
     if (!machineId) {
