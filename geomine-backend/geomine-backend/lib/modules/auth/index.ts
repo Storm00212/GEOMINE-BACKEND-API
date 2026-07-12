@@ -5,10 +5,11 @@
 // app/api/auth/me/route.ts rather than re-exported here).
 
 export {
-  getCurrentAuth,
+  getCurrentAuthFromRequest as getCurrentAuth,
   requireRole,
   requireAuth,
   UnauthorizedError,
   ForbiddenError,
   type AuthContext,
 } from "./auth.service";
+
