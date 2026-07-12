@@ -1,9 +1,7 @@
-// Repository layer — raw Supabase queries against `readings`. No auth
-// checks, no validation. RLS still applies since this uses the
-// request-scoped client — a miner's query here still can't return another
-// user's rows regardless of what this file does.
+// Repository layer — raw data access for `readings` using Neon/Postgres.
+// No business rules, no auth decisions.
 
-import { createClient } from "@/lib/supabase/request-client";
+import { query } from "@/lib/db";
 import type { Reading } from "@/types/database";
 
 export interface ReadingRow {
@@ -18,84 +16,169 @@ export interface ReadingRow {
   location_accuracy_m: number | null;
 }
 
-export async function insertReadings(rows: ReadingRow[]): Promise<{ data: Reading[] | null; error: any }> {
-  const supabase = createClient();
-  return supabase.from("readings").insert(rows).select();
+export async function insertReadings(
+  rows: ReadingRow[]
+): Promise<{ data: Reading[] | null; error: any }> {
+  if (rows.length === 0) return { data: [], error: null };
+
+  // Insert rows and return the inserted ones.
+  // Use parameterized VALUES for safety.
+  const columns = [
+    "machine_id",
+    "parameter_id",
+    "value",
+    "recorded_at",
+    "entered_by",
+    "notes",
+    "latitude",
+    "longitude",
+    "location_accuracy_m",
+  ] as const;
+
+  const values: any[] = [];
+  const placeholders: string[] = [];
+
+  rows.forEach((row, i) => {
+    const base = i * columns.length;
+    const ph = columns
+      .map((_, j) => {
+        values.push((row as any)[columns[j]]);
+        return `$${base + j + 1}`;
+      })
+      .join(", ");
+    placeholders.push(`(${ph})`);
+  });
+
+  const data = await query<Reading>(
+    `insert into readings (${columns.join(", ")})
+     values ${placeholders.join(", ")}
+     returning *`,
+    values
+  );
+
+  return { data, error: null };
 }
 
 export async function selectReadingsByMachine(
   machineId: string,
   opts?: { limit?: number; from?: string; to?: string }
 ) {
-  const supabase = createClient();
-  let query = supabase
-    .from("readings")
-    .select("id, value, recorded_at, flagged, parameter_id, parameter_definitions(label, unit)")
-    .eq("machine_id", machineId)
-    .order("recorded_at", { ascending: true });
+  const conditions: string[] = ["r.machine_id = $1"];
+  const params: any[] = [machineId];
 
-  if (opts?.from) query = query.gte("recorded_at", opts.from);
-  if (opts?.to) query = query.lte("recorded_at", opts.to);
-  if (opts?.limit) query = query.limit(opts.limit);
+  if (opts?.from) {
+    params.push(opts.from);
+    conditions.push(`r.recorded_at >= $${params.length}`);
+  }
+  if (opts?.to) {
+    params.push(opts.to);
+    conditions.push(`r.recorded_at <= $${params.length}`);
+  }
+  if (opts?.limit) {
+    // handled via LIMIT
+  }
 
-  const { data, error } = await query;
-  if (error) throw error;
-  return data ?? [];
+  const where = conditions.join(" and ");
+  const limitClause = opts?.limit ? ` limit ${opts.limit}` : "";
+
+  return query(
+    `select
+      r.id,
+      r.value,
+      r.recorded_at,
+      r.flagged,
+      r.parameter_id,
+      p.label,
+      p.unit
+     from readings r
+     join parameter_definitions p on p.id = r.parameter_id
+     where ${where}
+     order by r.recorded_at asc
+     ${limitClause}`,
+    params
+  );
 }
 
-export async function selectRecentReadings(limit: number) {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("readings")
-    .select("id, value, recorded_at, flagged, machines(name), parameter_definitions(label, unit)")
-    .order("recorded_at", { ascending: false })
-    .limit(limit);
 
-  if (error) throw error;
-  return data ?? [];
+
+export async function selectRecentReadings(limit: number) {
+  return query(
+    `select
+      r.id,
+      r.value,
+      r.recorded_at,
+      r.flagged,
+      r.machine_id,
+      m.name as machine_name,
+      r.parameter_id,
+      p.label,
+      p.unit
+     from readings r
+     join machines m on m.id = r.machine_id
+     join parameter_definitions p on p.id = r.parameter_id
+     order by r.recorded_at desc
+     limit $1`,
+    [limit]
+  );
 }
 
 export async function selectFlaggedReadings(limit: number) {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("readings")
-    .select("id, value, recorded_at, machines(name), parameter_definitions(label, unit)")
-    .eq("flagged", true)
-    .order("recorded_at", { ascending: false })
-    .limit(limit);
-
-  if (error) throw error;
-  return data ?? [];
+  return query(
+    `select
+      r.id,
+      r.value,
+      r.recorded_at,
+      r.flagged,
+      r.machine_id,
+      m.name as machine_name,
+      r.parameter_id,
+      p.label,
+      p.unit
+     from readings r
+     join machines m on m.id = r.machine_id
+     join parameter_definitions p on p.id = r.parameter_id
+     where r.flagged = true
+     order by r.recorded_at desc
+     limit $1`,
+    [limit]
+  );
 }
 
 export async function selectReadingsByUser(userId: string, limit: number) {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("readings")
-    .select("id, value, recorded_at, flagged, machines(name), parameter_definitions(label, unit)")
-    .eq("entered_by", userId)
-    .order("recorded_at", { ascending: false })
-    .limit(limit);
-
-  if (error) throw error;
-  return data ?? [];
+  return query(
+    `select
+      r.id,
+      r.value,
+      r.recorded_at,
+      r.flagged,
+      r.machine_id,
+      m.name as machine_name,
+      r.parameter_id,
+      p.label,
+      p.unit
+     from readings r
+     join machines m on m.id = r.machine_id
+     join parameter_definitions p on p.id = r.parameter_id
+     where r.entered_by = $1
+     order by r.recorded_at desc
+     limit $2`,
+    [userId, limit]
+  );
 }
 
 export async function updateReadingValue(id: string, value: number): Promise<Reading> {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("readings")
-    .update({ value })
-    .eq("id", id)
-    .select()
-    .single();
+  const rows = await query<Reading>(
+    `update readings
+       set value = $2
+     where id = $1
+     returning *`,
+    [id, value]
+  );
 
-  if (error) throw error;
-  return data;
+  return rows[0];
 }
 
 export async function deleteReadingById(id: string): Promise<void> {
-  const supabase = createClient();
-  const { error } = await supabase.from("readings").delete().eq("id", id);
-  if (error) throw error;
+  await query(`delete from readings where id = $1`, [id]);
 }
+
