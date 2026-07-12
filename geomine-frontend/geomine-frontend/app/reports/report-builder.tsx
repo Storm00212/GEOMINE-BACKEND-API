@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { backendFetchClient } from "@/lib/backend-client-browser";
+import { Card, Field, TextInput, SelectInput, Button, DividerLabel, AuthMessage } from "@/app/components/geomine-theme";
 
 export default function ReportBuilder({
   machines,
@@ -48,55 +49,43 @@ export default function ReportBuilder({
   }
 
   return (
-    <div className="mt-6 space-y-4">
-      <div>
-        <label className="block text-sm font-medium">Generator</label>
-        <select
-          value={machineId}
-          onChange={(e) => setMachineId(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-        >
-          <option value="all">All generators</option>
-          {machines.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium">From</label>
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">To</label>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-          />
-        </div>
-      </div>
-
-      <button
-        onClick={handleDownload}
-        disabled={status === "downloading"}
-        className="w-full rounded-md bg-gray-900 px-4 py-2 text-center text-sm font-medium text-white disabled:opacity-50"
+    <Card>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleDownload();
+        }}
+        className="space-y-4"
       >
-        {status === "downloading" ? "Preparing…" : "Download CSV"}
-      </button>
+        <Field label="Generator" htmlFor="machine">
+          <SelectInput value={machineId} onChange={(e) => setMachineId(e.target.value)}>
+            <option value="all">All generators</option>
+            {machines.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </SelectInput>
+        </Field>
 
-      {status === "error" && (
-        <p className="text-sm text-red-600">Couldn't generate the export. Try again.</p>
-      )}
-    </div>
+        <DividerLabel>Date range</DividerLabel>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="From" htmlFor="from">
+            <TextInput id="from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+          </Field>
+          <Field label="To" htmlFor="to">
+            <TextInput id="to" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+          </Field>
+        </div>
+
+        <Button type="submit" disabled={status === "downloading"}>
+          {status === "downloading" ? "Preparing…" : "Download CSV"}
+        </Button>
+
+        {status === "error" && (
+          <AuthMessage status="error" message="Couldn't generate the export. Try again." />
+        )}
+      </form>
+    </Card>
   );
 }
