@@ -2,49 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { apiPost } from "@/lib/auth/api";
+import { setAccessToken } from "@/lib/auth/token-storage";
 
-type AuthMode = "login" | "signup" | "reset";
-type Status = "idle" | "submitting" | "success" | "error";
+type AuthMode = "login" | "signup";
+
+type Status = "idle" | "submitting" | "error" | "success";
 
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<AuthMode>("login");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"miner" | "it" | "admin">("miner");
+
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string | null>(null);
 
   const isSignup = mode === "signup";
-  const isReset = mode === "reset";
-  const appOrigin = "https://geomine-backend-api-frontend.onrender.com";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("submitting");
     setMessage(null);
-
-    const supabase = createClient();
-
-    if (isReset) {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${appOrigin}/auth/callback`,
-      });
-
-      if (error) {
-        setStatus("error");
-        setMessage(error.message);
-        return;
-      }
-
-      setStatus("success");
-      setMessage(
-        "If that email is registered, a password reset link has been sent. Check your inbox."
-      );
-      return;
-    }
 
     if (isSignup) {
       if (password !== confirmPassword) {
@@ -52,59 +34,30 @@ export default function LoginPage() {
         setMessage("Passwords do not match.");
         return;
       }
-
       if (password.length < 8) {
         setStatus("error");
         setMessage("Password must be at least 8 characters.");
         return;
       }
 
-      const { error, data } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            role,
-          },
-        },
-      });
+      const data = await apiPost<{ accessToken: string }>(
+        "/api/auth/signup",
+        { email, password, role }
+      );
 
-      if (error) {
-        setStatus("error");
-        setMessage(error.message);
-        return;
-      }
-
-      if (!data.session) {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (signInError) {
-          setStatus("error");
-          setMessage(
-            "Account created, but login failed. If you have email confirmation enabled, please check your inbox, or use Reset Password."
-          );
-          return;
-        }
-      }
-
+      setAccessToken(data.accessToken);
+      setStatus("success");
       router.replace("/");
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const data = await apiPost<{ accessToken: string }>(
+      "/api/auth/login",
+      { email, password }
+    );
 
-    if (error) {
-      setStatus("error");
-      setMessage(error.message);
-      return;
-    }
-
+    setAccessToken(data.accessToken);
+    setStatus("success");
     router.replace("/");
   }
 
@@ -121,30 +74,18 @@ export default function LoginPage() {
         <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              {isReset
-                ? "Reset password"
-                : isSignup
-                ? "Create an account"
-                : "Sign in"}
+              {isSignup ? "Create an account" : "Sign in"}
             </h2>
             <button
               type="button"
               onClick={() => {
-                if (isReset) {
-                  setMode("login");
-                } else {
-                  setMode(isSignup ? "login" : "signup");
-                }
+                setMode(isSignup ? "login" : "signup");
                 setStatus("idle");
                 setMessage(null);
               }}
               className="text-sm text-gray-500 hover:text-gray-900"
             >
-              {isReset
-                ? "Back to sign in"
-                : isSignup
-                ? "Already have an account?"
-                : "Need an account?"}
+              {isSignup ? "Already have an account?" : "Need an account?"}
             </button>
           </div>
 
@@ -164,22 +105,20 @@ export default function LoginPage() {
               />
             </div>
 
-            {!isReset && (
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                  placeholder="********"
-                />
-              </div>
-            )}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                placeholder="********"
+              />
+            </div>
 
             {isSignup && (
               <>
@@ -190,7 +129,9 @@ export default function LoginPage() {
                   <select
                     id="role"
                     value={role}
-                    onChange={(e) => setRole(e.target.value as "miner" | "it" | "admin")}
+                    onChange={(e) =>
+                      setRole(e.target.value as "miner" | "it" | "admin")
+                    }
                     className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
                   >
                     <option value="miner">Miner</option>
@@ -198,8 +139,12 @@ export default function LoginPage() {
                     <option value="admin">Admin</option>
                   </select>
                 </div>
+
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium"
+                  >
                     Confirm password
                   </label>
                   <input
@@ -221,31 +166,13 @@ export default function LoginPage() {
               className="w-full rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
               {status === "submitting"
-                ? isReset
-                  ? "Sending reset email…"
-                  : isSignup
+                ? isSignup
                   ? "Creating account…"
                   : "Signing in…"
-                : isReset
-                ? "Send reset email"
                 : isSignup
                 ? "Sign up"
                 : "Sign in"}
             </button>
-
-            {!isReset && !isSignup && (
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("reset");
-                  setStatus("idle");
-                  setMessage(null);
-                }}
-                className="w-full text-left text-sm text-gray-500 hover:text-gray-900"
-              >
-                Forgot your password?
-              </button>
-            )}
 
             {message && (
               <p
@@ -264,3 +191,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
