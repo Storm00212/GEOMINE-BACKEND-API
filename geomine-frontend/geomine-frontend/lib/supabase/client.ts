@@ -1,8 +1,6 @@
-import { createBrowserClient } from "@supabase/ssr";
-
+// Supabase client removed (Phase 1). File retained only to avoid import errors
+// during transition; it should not be used.
 export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  throw new Error("Supabase removed: createClient() is not available.");
 }
+
