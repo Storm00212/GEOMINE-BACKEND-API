@@ -11,7 +11,7 @@ import {
   ListRow,
   FleetRow,
   statusFromHealth,
-} from "@/components/geomine-theme";
+} from "@/app/components/geomine-theme";
 
 interface DashboardData {
   machines: Machine[];
