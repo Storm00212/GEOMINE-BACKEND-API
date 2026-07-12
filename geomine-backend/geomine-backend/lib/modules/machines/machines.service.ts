@@ -13,12 +13,17 @@ export async function getMachine(id: string): Promise<Machine | null> {
   return repo.selectMachineById(id);
 }
 
-export async function createMachine(input: {
-  name: string;
-  location?: string;
-  phaseType?: "single_phase" | "three_phase";
-}): Promise<Machine> {
-  await requireRole(["admin"]);
+export async function createMachine(
+  input: {
+    name: string;
+    location?: string;
+    phaseType?: "single_phase" | "three_phase";
+  },
+  request: Request
+): Promise<Machine> {
+  await requireRole(request, ["admin"]);
+
+
 
   return repo.insertMachine({
     name: input.name,
@@ -27,7 +32,8 @@ export async function createMachine(input: {
   });
 }
 
-export async function setMachineSpec(machineId: string, key: string, value: number): Promise<void> {
-  await requireRole(["admin"]);
+export async function setMachineSpec(machineId: string, key: string, value: number, request: Request): Promise<void> {
+  await requireRole(request, ["admin"]);
   return repo.upsertMachineSpec(machineId, key, value);
 }
+
