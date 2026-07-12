@@ -6,41 +6,40 @@ its own login session; every piece of actual data or business logic comes
 from the backend over HTTP.
 
 ## Stack
-Next.js 14 (App Router) + TypeScript + Tailwind + Supabase Auth (for its
-own session only — see below)
+Next.js 14 (App Router) + TypeScript + Tailwind + custom JWT auth issued by
+the backend (no Supabase Auth)
 
 ## What this project does and doesn't own
 
 **Owns:**
-- Its own login flow (`/login`, magic link, `/auth/callback`) — a normal
-  same-origin Supabase Auth setup, using `@supabase/ssr` and cookies exactly
-  like a single-app Next.js project would.
-- Role-based page routing (`middleware.ts`) — reads the current user's own
-  profile directly via Supabase (RLS already allows a user to read their
-  own row), purely to decide which page to redirect to. This is a
-  deliberate exception to "everything goes through the backend" — see the
-  comment in `middleware.ts` for why.
+- Its own login flow (`/login`, email + password) — calls the backend's
+  `POST /api/auth/login` (and `POST /api/auth/signup`), then stores the
+  returned JWT in `localStorage` (`lib/auth/token-storage.ts`).
+- Role-based UI gating (`app/components/auth-nav.tsx`) — reads the stored
+  token to decide whether to show the logout control. Authorization for real
+  data is enforced by the backend's service layer, not here.
 - All presentation: pages, charts, forms, the metrics panel styling.
 
 **Does NOT own:**
-- Any business logic or direct Postgres access beyond the profile self-read
-  above. No `lib/modules/`, no service-role key, nothing that could bypass
-  RLS. Every reading, machine, metric, or recommendation is fetched from
-  the backend.
+- Any business logic or direct database access. No `lib/modules/`, no service
+  role key, nothing that could bypass the backend. Every reading, machine,
+  metric, or recommendation is fetched from the backend, which talks to Neon
+  Postgres directly.
 
 ## How auth carries over to the backend
-The frontend logs a user in via its own cookie session (same-origin, works
-exactly like before). When a page or component needs backend data, it reads
-that session's `access_token` and sends it as a Bearer header:
+The frontend logs a user in by calling the backend's auth endpoints and
+storing the returned JWT in `localStorage`. When a page or component needs
+backend data, it reads that token and sends it as a `Bearer` header:
 
-- **Server Components** (`app/*/page.tsx`) → `lib/backend-client-server.ts`
-  (`backendFetchServer` / `backendGetJson`) — reads the session via
-  `lib/supabase/server.ts` (cookies, same-origin) and forwards the token
-  server-to-server. Not subject to browser CORS at all.
-- **Client Components** (forms, buttons) → `lib/backend-client-browser.ts`
-  (`backendFetchClient`) — reads the session via the browser Supabase client
+- **Client Components** (forms, buttons, pages) → `lib/backend-client-browser.ts`
+  (`backendFetchClient`) — reads the token from `lib/auth/token-storage.ts`
   and calls the backend directly from the browser. This IS a genuine
   cross-origin request, which is why the backend's CORS allowlist matters.
+- **Server Components** (`app/*/page.tsx`) → `lib/backend-client-server.ts`
+  (`backendFetchServer` / `backendGetJson`) — sends requests without an
+  `Authorization` header for now, because the token lives in browser
+  `localStorage` and isn't readable from the server. Authenticated data is
+  therefore fetched from Client Components.
 
 Every page was rewritten to use one of these two helpers instead of
 importing business logic directly — this is the actual seam of the
@@ -59,14 +58,8 @@ an authenticated cross-origin file download actually requires.
 
 ### 1. Environment variables
 Copy `.env.local.example` to `.env.local`:
-- `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` — **same
-  Supabase project the backend uses.** Only the anon key — this project
-  never sees the service role key.
 - `NEXT_PUBLIC_BACKEND_URL` — where the backend is running
   (`http://localhost:4000` for local dev).
-
-In Supabase Dashboard > Authentication > URL Configuration, add this
-frontend's own callback URL (e.g. `http://localhost:3000/auth/callback`).
 
 ### 2. Make sure the backend's CORS allows this origin
 In the **backend's** `.env.local`, `ALLOWED_ORIGINS` needs to include
@@ -87,7 +80,7 @@ page after `/login` calls it immediately.
 
 | Route | Role | Notes |
 |---|---|---|
-| `/login` | public | magic link |
+| `/login` | public | email + password |
 | `/entry` | miner/it/admin | quick-entry form, backdatable timestamp |
 | `/entry/history` | miner/it/admin | caller's own submitted readings |
 | `/dashboard` | it/admin | fleet overview, sorted by maintenance priority |
@@ -102,7 +95,7 @@ page after `/login` calls it immediately.
 - Refuel/fault logging forms — the backend routes exist
   (`POST /api/refuel-events`, `POST /api/fault-events`), no UI calls them yet.
 - Admin UI for managing machines/parameters — use the backend's
-  `POST /api/machines` directly or the Supabase Table Editor for now.
+  `POST /api/machines` directly or a SQL client against Neon for now.
 - Offline support (PWA + local sync).
 
 ## A note on shared types
