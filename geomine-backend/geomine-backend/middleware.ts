@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // CORS at all — this only matters for the frontend's Client Components
 // calling this API directly from the browser).
 //
-// Auth here is a Bearer token (see lib/supabase/request-client.ts), not a
+// Auth here is a Bearer token (see lib/auth/secure-session.ts), not a
 // cookie, so we don't need Access-Control-Allow-Credentials or any cookie
 // dance — just an origin allowlist and the Authorization header allowed
 // through.
