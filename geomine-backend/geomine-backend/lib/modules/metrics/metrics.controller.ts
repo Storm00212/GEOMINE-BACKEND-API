@@ -4,9 +4,10 @@ import { handleApiError } from "@/lib/http";
 import { NextRequest, NextResponse } from "next/server";
 
 /** GET /api/metrics/fleet-snapshot — it/admin only. */
-export async function fleetSnapshotController() {
+export async function fleetSnapshotController(request: NextRequest) {
+
   try {
-    await requireRole(["it", "admin"]);
+    await requireRole(request, ["it", "admin"]);
     const snapshot = await getFleetHealthSnapshot();
     return NextResponse.json({ snapshot });
   } catch (error) {
@@ -22,7 +23,8 @@ export async function machineSnapshotController(
   { params }: { params: { id: string } }
 ) {
   try {
-    await requireRole(["it", "admin"]);
+    await requireRole(_request, ["it", "admin"]);
+
     const snapshot = await getMachineHealthSnapshot(params.id);
     return NextResponse.json({ snapshot });
   } catch (error) {
