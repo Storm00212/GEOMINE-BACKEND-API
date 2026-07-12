@@ -1,5 +1,6 @@
 import { backendGetJson } from "@/lib/backend-client-server";
 import type { Machine } from "@/types/database";
+import { AppShell } from "@/app/components/geomine-theme";
 import ReportBuilder from "./report-builder";
 
 export default async function ReportsPage() {
@@ -8,13 +9,13 @@ export default async function ReportsPage() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-xl font-semibold">Export data</h1>
-      <p className="mt-1 text-sm text-gray-500">
+    <AppShell active="reports">
+      <h1 className="text-[19px] font-semibold">Export data</h1>
+      <p className="mb-6 mt-1 text-[13px] text-ink-dim">
         Download logged readings as a CSV file.
       </p>
 
       <ReportBuilder machines={machines} />
-    </div>
+    </AppShell>
   );
 }
