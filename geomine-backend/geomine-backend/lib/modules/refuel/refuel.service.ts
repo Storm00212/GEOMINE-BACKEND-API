@@ -19,22 +19,20 @@ export async function logRefuelEvent(input: LogRefuelInput, request: Request): P
     throw new ValidationError("litersAdded must be a positive number");
   }
 
-  const { data, error } = await repo.insertRefuelEvent({
-    machine_id: input.machineId,
-    liters_added: input.litersAdded,
-    recorded_at: input.recordedAt,
-    entered_by: auth.userId,
-    notes: input.notes ?? null,
-  });
-
-  if (error) {
-    if (error.message.includes("recorded_at cannot be in the future")) {
+  try {
+    return await repo.insertRefuelEvent({
+      machine_id: input.machineId,
+      liters_added: input.litersAdded,
+      recorded_at: input.recordedAt,
+      entered_by: auth.userId,
+      notes: input.notes ?? null,
+    });
+  } catch (error: any) {
+    if (error?.message?.includes("recorded_at cannot be in the future")) {
       throw new ValidationError("Refuel time cannot be in the future");
     }
     throw error;
   }
-
-  return data;
 }
 
 export async function listRefuelEvents(
