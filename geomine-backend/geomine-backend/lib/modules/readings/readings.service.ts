@@ -26,8 +26,9 @@ export interface LogReadingsInput {
 }
 
 /** Batch-logs one or more parameter readings for a machine at a single timestamp. */
-export async function logReadings(input: LogReadingsInput): Promise<Reading[]> {
-  const auth = await requireRole(["miner", "it", "admin"]);
+export async function logReadings(input: LogReadingsInput, request: Request): Promise<Reading[]> {
+  const auth = await requireRole(request, ["miner", "it", "admin"]);
+
 
   if (!input.machineId) throw new ValidationError("machineId is required");
   if (!input.entries || input.entries.length === 0) {
@@ -81,14 +82,15 @@ export async function listFlaggedReadings(limit = 10) {
   return repo.selectFlaggedReadings(limit);
 }
 
-/** A user's own submitted readings — used by the miner's history page. */
-export async function listMyReadings(limit = 50) {
-  const auth = await requireRole(["miner", "it", "admin"]);
+  /** A user's own submitted readings — used by the miner's history page. */
+export async function listMyReadings(limit = 50, request: Request) {
+  const auth = await requireRole(request, ["miner", "it", "admin"]);
   return repo.selectReadingsByUser(auth.userId, limit);
 }
 
-export async function correctReading(id: string, newValue: number): Promise<Reading> {
-  await requireRole(["it", "admin"]);
+export async function correctReading(id: string, newValue: number, request: Request): Promise<Reading> {
+  await requireRole(request, ["it", "admin"]);
+
 
   if (typeof newValue !== "number" || Number.isNaN(newValue)) {
     throw new ValidationError("Invalid value");
@@ -97,7 +99,8 @@ export async function correctReading(id: string, newValue: number): Promise<Read
   return repo.updateReadingValue(id, newValue);
 }
 
-export async function deleteReading(id: string): Promise<void> {
-  await requireRole(["admin"]);
+export async function deleteReading(id: string, request: Request): Promise<void> {
+  await requireRole(request, ["admin"]);
   return repo.deleteReadingById(id);
 }
+
