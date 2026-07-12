@@ -15,11 +15,12 @@ export default function ResetPasswordPage() {
     setStatus("submitting");
     setMessage(null);
 
-    // Phase 1: Supabase reset flow removed.
-    // Backend custom reset endpoint to be implemented in Phase 2.
-    // For now, guide the user to login.
+    // Auth is handled by the backend (Neon Postgres + custom JWT), not
+    // Supabase. There is no self-service reset endpoint — an administrator
+    // re-invites the user via POST /api/admin/invite (which issues a fresh
+    // temporary password). For now, guide the user to contact an admin.
     setStatus("success");
-    setMessage("Password reset is not available yet. Please contact your administrator or sign in.");
+    setMessage("Password reset is handled by your administrator. Please contact them, or sign in.");
 
     setTimeout(() => router.replace("/login"), 1200);
   }
@@ -27,7 +28,7 @@ export default function ResetPasswordPage() {
   return (
     <AuthShell
       title="Reset your password"
-      subtitle="Temporarily disabled during the Supabase → Neon migration."
+      subtitle="Contact an administrator to reset your password."
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <Field label="Email" htmlFor="email">
