@@ -1,5 +1,5 @@
 import { requireRole } from "@/lib/modules/auth";
-import { inviteUserByEmail } from "./admin.repository";
+import { inviteUserByEmail, type InvitedUser } from "./admin.repository";
 import type { UserRole } from "@/types/database";
 
 export interface InviteUserInput {
@@ -8,7 +8,10 @@ export interface InviteUserInput {
   role: UserRole;
 }
 
-export async function inviteUser(request: Request, input: InviteUserInput): Promise<void> {
+export async function inviteUser(
+  request: Request,
+  input: InviteUserInput
+): Promise<InvitedUser> {
   await requireRole(request, ["admin"]);
 
 
@@ -16,10 +19,8 @@ export async function inviteUser(request: Request, input: InviteUserInput): Prom
     throw new Error("Invalid invite payload");
   }
 
-  const { error } = await inviteUserByEmail(input.email, {
+  return inviteUserByEmail(input.email, {
     full_name: input.fullName,
     role: input.role,
   });
-
-  if (error) throw new Error(error.message);
 }
