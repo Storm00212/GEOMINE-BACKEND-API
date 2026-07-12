@@ -20,11 +20,14 @@ export async function listMachinesController(request: NextRequest) {
 export async function createMachineController(request: NextRequest) {
   try {
     const body = await request.json();
-    const machine = await createMachine({
-      name: body.name,
-      location: body.location,
-      phaseType: body.phaseType,
-    });
+    const machine = await createMachine(
+      {
+        name: body.name,
+        location: body.location,
+        phaseType: body.phaseType,
+      },
+      request
+    );
     return NextResponse.json({ machine });
   } catch (error) {
     return handleApiError(error);
