@@ -11,9 +11,10 @@ export const dynamic = "force-dynamic";
 // Bundles everything the fleet overview page needs into one round-trip
 // instead of four separate calls — meaningful on a mobile network, and one
 // less thing for the frontend to coordinate loading states for.
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    await requireRole(["it", "admin"]);
+    await requireRole(request, ["it", "admin"]);
+
 
     const [machines, recentReadings, flaggedReadings, fleetSnapshot] = await Promise.all([
       listMachines(),
