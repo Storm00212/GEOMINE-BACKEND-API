@@ -6,6 +6,7 @@ import type {
   SpecificFuelConsumption,
   IdleDuration,
 } from "@/types/metrics";
+import { Card, DividerLabel, MetricTile, statusFromHealth } from "@/app/components/geomine-theme";
 
 function fmt(v: number | null | undefined, unit = "") {
   return v === null || v === undefined ? "—" : `${v}${unit}`;
@@ -27,78 +28,93 @@ export default function MetricsPanel({
   idle: IdleDuration | null;
 }) {
   return (
-    <div className="mt-6 space-y-4">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-          Latest readings
-        </p>
-        <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Metric label="Fuel level" value={fmt(snapshot.latest_fuel_level, " L")} />
-          <Metric label="Engine hours" value={fmt(snapshot.latest_engine_hours, " hr")} />
-          <Metric label="Coolant temp" value={fmt(snapshot.latest_coolant_temp, "°C")} />
-          <Metric label="Open faults" value={snapshot.open_fault_count} />
+    <div className="mt-6 space-y-5">
+      <Card>
+        <DividerLabel>Latest readings</DividerLabel>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <MetricTile label="Fuel level" value={fmt(snapshot.latest_fuel_level, " L")} />
+          <MetricTile label="Engine hours" value={fmt(snapshot.latest_engine_hours, " hr")} />
+          <MetricTile label="Coolant temp" value={fmt(snapshot.latest_coolant_temp, "°C")} />
+          <MetricTile
+            label="Open faults"
+            value={snapshot.open_fault_count}
+            tone={snapshot.open_fault_count > 0 ? "red" : "green"}
+          />
         </div>
-      </div>
+      </Card>
 
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-          Calculated — physics
-        </p>
-        <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Metric label="Loading" value={fmt(snapshot.loading_pct, "%")} />
-          <Metric label="Apparent power" value={fmt(snapshot.apparent_power_kva, " kVA")} />
-          <Metric label="Real power" value={fmt(snapshot.real_power_kw, " kW")} />
-          <Metric label="Frequency" value={fmt(snapshot.frequency_hz, " Hz")} />
-          <Metric
+      <Card>
+        <DividerLabel>Calculated — physics</DividerLabel>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <MetricTile label="Loading" value={fmt(snapshot.loading_pct, "%")} tone="cyan" />
+          <MetricTile label="Apparent power" value={fmt(snapshot.apparent_power_kva, " kVA")} tone="cyan" />
+          <MetricTile label="Real power" value={fmt(snapshot.real_power_kw, " kW")} tone="cyan" />
+          <MetricTile label="Frequency" value={fmt(snapshot.frequency_hz, " Hz")} tone="cyan" />
+          <MetricTile
             label="Fuel efficiency"
             value={fuelConsumption?.l_per_kwh ? `${fuelConsumption.l_per_kwh} L/kWh` : "—"}
             hint={fuelConsumption && fuelConsumption.note !== "ok" ? fuelConsumption.note : undefined}
           />
         </div>
-      </div>
+      </Card>
 
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-          Heuristic — pending calibration against real operating history
-        </p>
-        <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Metric label="Thermal stress" value={fmt(snapshot.thermal_stress_index, "%")} />
-          <Metric label="Health index" value={fmt(snapshot.health_index)} />
-          <Metric label="Maintenance priority" value={fmt(snapshot.maintenance_priority_score)} />
-          <Metric
+      <Card>
+        <DividerLabel>Heuristic — pending calibration</DividerLabel>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <MetricTile
+            label="Thermal stress"
+            value={fmt(snapshot.thermal_stress_index, "%")}
+            tone={snapshot.thermal_stress_index && snapshot.thermal_stress_index >= 85 ? "red" : "amber"}
+          />
+          <MetricTile
+            label="Health index"
+            value={fmt(snapshot.health_index)}
+            tone={statusFromHealth(snapshot.health_index)}
+          />
+          <MetricTile
+            label="Maintenance priority"
+            value={fmt(snapshot.maintenance_priority_score)}
+            tone={
+              snapshot.maintenance_priority_score && snapshot.maintenance_priority_score >= 50
+                ? "red"
+                : snapshot.maintenance_priority_score && snapshot.maintenance_priority_score >= 25
+                  ? "amber"
+                  : "green"
+            }
+          />
+          <MetricTile
             label="Overload (30d)"
             value={overload ? `${overload.overload_minutes} min` : "—"}
             hint={overload ? `${overload.sample_count} samples` : undefined}
           />
-          <Metric
+          <MetricTile
             label="Idle (30d)"
             value={idle ? `${idle.idle_minutes} min` : "—"}
             hint={idle ? `${idle.sample_count} samples` : undefined}
           />
-          <Metric
-            label="PF trend (proxy for efficiency)"
+          <MetricTile
+            label="PF trend"
             value={pfTrend ? pfTrend.direction.replace("_", " ") : "—"}
+            tone={
+              pfTrend?.direction === "declining"
+                ? "amber"
+                : pfTrend?.direction === "improving"
+                  ? "green"
+                  : "neutral"
+            }
             hint={pfTrend ? `${pfTrend.sample_count} samples` : undefined}
           />
         </div>
-      </div>
+      </Card>
 
       {rul && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm">
-          <p className="font-medium text-amber-800">Remaining useful life: not yet available</p>
-          <p className="mt-1 text-amber-700">{rul.note}</p>
-        </div>
+        <Card tint="amber">
+          <div className="font-mono text-[12px] font-semibold uppercase tracking-[0.5px] text-amber">
+            Remaining useful life: not yet available
+          </div>
+          <p className="mt-1 text-[12.5px] text-ink-dim">{rul.note}</p>
+        </Card>
       )}
-    </div>
-  );
-}
-
-function Metric({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
-  return (
-    <div className="rounded-md border border-gray-200 bg-white px-3 py-2">
-      <p className="text-xs text-gray-400">{label}</p>
-      <p className="mt-0.5 text-sm font-semibold">{value}</p>
-      {hint && <p className="text-[10px] text-gray-400">{hint}</p>}
     </div>
   );
 }
