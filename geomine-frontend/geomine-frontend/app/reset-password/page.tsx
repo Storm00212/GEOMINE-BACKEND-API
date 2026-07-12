@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { AuthShell, AuthMessage, Field, TextInput, Button } from "@/app/components/geomine-theme";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -24,49 +25,31 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm rounded-md border border-gray-200 bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-semibold">Reset your password</h1>
-        <p className="mt-2 text-sm text-gray-500">
-          This page is temporarily disabled during the Supabase → Neon migration.
-        </p>
+    <AuthShell
+      title="Reset your password"
+      subtitle="Temporarily disabled during the Supabase → Neon migration."
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Field label="Email" htmlFor="email">
+          <TextInput
+            id="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@geomine.com"
+          />
+        </Field>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-              placeholder="you@geomine.com"
-            />
-          </div>
+        <Button type="submit" disabled={status === "submitting"}>
+          {status === "submitting" ? "Processing…" : "Request reset"}
+        </Button>
 
-          <button
-            type="submit"
-            disabled={status === "submitting"}
-            className="w-full rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-          >
-            {status === "submitting" ? "Processing…" : "Request reset"}
-          </button>
-
-          {message && (
-            <p
-              className={`rounded-md p-4 text-sm ${
-                status === "error" ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"
-              }`}
-            >
-              {message}
-            </p>
-          )}
-        </form>
-      </div>
-    </div>
+        {message && (
+          <AuthMessage status={status === "error" ? "error" : "success"} message={message} />
+        )}
+      </form>
+    </AuthShell>
   );
 }
 
