@@ -6,9 +6,9 @@ import { NextRequest, NextResponse } from "next/server";
 export async function inviteUserController(request: NextRequest) {
   try {
     const { email, full_name, role } = await request.json();
-    await inviteUser(request, { email, fullName: full_name, role });
+    const result = await inviteUser(request, { email, fullName: full_name, role });
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, ...result });
   } catch (error) {
     return handleApiError(error);
   }
