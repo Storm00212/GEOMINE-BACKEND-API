@@ -2,20 +2,19 @@
 // decisions live here, just "get the row(s)". Every other layer in this
 // module goes through here rather than calling Supabase directly.
 
-import { createClient } from "@/lib/supabase/request-client";
+import { query } from "@/lib/db";
+import { verifyAccessToken, type JwtClaims } from "@/lib/auth/jwt";
 import type { Profile } from "@/types/database";
-import type { User } from "@supabase/supabase-js";
 
-export async function getAuthUser(): Promise<User | null> {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+export type AuthUser = { id: string; role: JwtClaims["role"] };
+
+export function getAuthFromBearerToken(token: string): AuthUser {
+  const claims = verifyAccessToken(token);
+  return { id: claims.sub, role: claims.role };
 }
 
 export async function getProfileById(id: string): Promise<Profile | null> {
-  const supabase = createClient();
-  const { data } = await supabase.from("profiles").select("*").eq("id", id).single();
-  return (data as Profile) ?? null;
+  const rows = await query<Profile>(`select * from profiles where id = $1 limit 1`, [id]);
+  return rows[0] ?? null;
 }
+
