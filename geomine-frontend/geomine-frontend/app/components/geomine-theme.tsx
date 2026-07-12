@@ -4,10 +4,17 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { clearAccessToken } from "@/lib/auth/token-storage";
+import {
+  StatusTone,
+  TONE_TEXT,
+  TONE_DOT,
+  statusFromHealth,
+} from "./theme-utils";
+
+export type { StatusTone } from "./theme-utils";
+export { statusFromHealth } from "./theme-utils";
 
 export type NavKey = "entry" | "dashboard" | "machines" | "reports";
-
-export type StatusTone = "green" | "amber" | "red" | "cyan" | "neutral";
 
 const NAV_ITEMS: { key: NavKey; label: string; role: string; href: string }[] = [
   { key: "entry", label: "Log a reading", role: "MINER", href: "/entry" },
@@ -15,29 +22,6 @@ const NAV_ITEMS: { key: NavKey; label: string; role: string; href: string }[] = 
   { key: "machines", label: "Generator", role: "IT · ADMIN", href: "/machines" },
   { key: "reports", label: "Export data", role: "IT · ADMIN", href: "/reports" },
 ];
-
-const TONE_TEXT: Record<StatusTone, string> = {
-  green: "text-green",
-  amber: "text-amber",
-  red: "text-red",
-  cyan: "text-cyan",
-  neutral: "text-ink",
-};
-
-const TONE_DOT: Record<StatusTone, string> = {
-  green: "gm-dot green",
-  amber: "gm-dot amber",
-  red: "gm-dot red",
-  cyan: "gm-dot green",
-  neutral: "gm-dot green",
-};
-
-export function statusFromHealth(health: number | null | undefined): StatusTone {
-  if (health === null || health === undefined) return "neutral";
-  if (health >= 80) return "green";
-  if (health >= 55) return "amber";
-  return "red";
-}
 
 export function toneText(tone: StatusTone) {
   return TONE_TEXT[tone];
