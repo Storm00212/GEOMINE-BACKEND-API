@@ -14,20 +14,17 @@ import { headers } from "next/headers";
 // every Supabase call made through it is subject to that user's RLS
 // policies — same security model as before, just carried differently.
 export function createClient() {
+  // Neon migration: this legacy Supabase request client should not hard-crash
+  // the server if Supabase env vars are missing. Fail only when the legacy
+  // code path is invoked.
+  const url = process.env.SUPABASE_URL;
+  const anonKey = process.env.SUPABASE_ANON_KEY;
+  if (!url || !anonKey) {
+    throw new Error(
+      "Supabase env vars missing (SUPABASE_URL / SUPABASE_ANON_KEY). " +
+        "Legacy Supabase data access is not available in Neon-only mode."
+    );
+  }
+
   const authHeader = headers().get("authorization");
   const token = authHeader?.replace(/^Bearer\s+/i, "");
-
-  return createSupabaseClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    {
-      global: {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      },
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    }
-  );
-}
