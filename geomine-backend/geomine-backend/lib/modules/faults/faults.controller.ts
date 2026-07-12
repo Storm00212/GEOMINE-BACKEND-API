@@ -7,12 +7,15 @@ import { NextRequest, NextResponse } from "next/server";
 export async function logFaultController(request: NextRequest) {
   try {
     const body = await request.json();
-    const event = await logFaultEvent({
-      machineId: body.machineId,
-      code: body.code,
-      description: body.description,
-      recordedAt: body.recordedAt,
-    });
+    const event = await logFaultEvent(
+      {
+        machineId: body.machineId,
+        code: body.code,
+        description: body.description,
+        recordedAt: body.recordedAt,
+      },
+      request
+    );
     return NextResponse.json({ event });
   } catch (error) {
     return handleApiError(error);
@@ -22,7 +25,8 @@ export async function logFaultController(request: NextRequest) {
 /** GET /api/fault-events?machine_id=...&unresolved_only=true — it/admin only. */
 export async function listFaultController(request: NextRequest) {
   try {
-    await requireRole(["it", "admin"]);
+    await requireRole(request, ["it", "admin"]);
+
     const { searchParams } = new URL(request.url);
     const machineId = searchParams.get("machine_id");
     if (!machineId) {
@@ -38,11 +42,11 @@ export async function listFaultController(request: NextRequest) {
 
 /** POST /api/fault-events/[id]/resolve — it/admin only. */
 export async function resolveFaultController(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const event = await resolveFault(params.id);
+    const event = await resolveFault(params.id, request);
     return NextResponse.json({ event });
   } catch (error) {
     return handleApiError(error);
