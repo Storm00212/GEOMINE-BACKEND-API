@@ -6,7 +6,8 @@ import type {
   SpecificFuelConsumption,
   IdleDuration,
 } from "@/types/metrics";
-import { Card, DividerLabel, MetricTile, statusFromHealth } from "@/app/components/geomine-theme";
+import { Card, DividerLabel, MetricTile } from "@/app/components/geomine-theme";
+import { statusFromHealth } from "@/app/components/theme-utils";
 
 function fmt(v: number | null | undefined, unit = "") {
   return v === null || v === undefined ? "—" : `${v}${unit}`;
