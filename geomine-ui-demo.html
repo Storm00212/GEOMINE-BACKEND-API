@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Geomine PMS — UI Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #181B21;
+    --panel: #21252D;
+    --panel-alt: #282D37;
+    --border: #363C48;
+    --border-soft: #2C313C;
+    --text: #EDEFF3;
+    --text-dim: #8D95A3;
+    --text-faint: #5C6270;
+    --amber: #E8A33D;
+    --amber-dim: #4A3B22;
+    --green: #4FAE7C;
+    --green-dim: #22392E;
+    --red: #E0574F;
+    --red-dim: #402323;
+    --cyan: #4FC3D9;
+    --cyan-dim: #1E3438;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+  .shell { display: flex; min-height: 100vh; }
+
+  /* --- Sidebar --- */
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: #14161B;
+    border-right: 1px solid var(--border-soft);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .brand { padding: 0 8px 24px; border-bottom: 1px solid var(--border-soft); margin-bottom: 20px; }
+  .brand-mark { font-size: 17px; font-weight: 600; letter-spacing: 0.5px; }
+  .brand-mark span { color: var(--amber); }
+  .brand-sub { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-faint); letter-spacing: 1.2px; margin-top: 4px; }
+  .nav-item {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 10px 12px; border-radius: 6px; margin-bottom: 4px;
+    cursor: pointer; border: 1px solid transparent;
+    transition: background 0.12s ease;
+  }
+  .nav-item:hover { background: var(--panel-alt); }
+  .nav-item.active { background: var(--panel-alt); border-color: var(--border); }
+  .nav-item.active .nav-label { color: var(--text); }
+  .nav-item.active::before { content: ''; }
+  .nav-label { font-size: 13.5px; font-weight: 500; color: var(--text-dim); }
+  .nav-role { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.8px; }
+  .sidebar-footer {
+    margin-top: auto; padding: 12px; border-top: 1px solid var(--border-soft);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .avatar {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--cyan-dim);
+    color: var(--cyan); font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .session-name { font-size: 12px; font-weight: 500; }
+  .session-role { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; color: var(--text-faint); }
+
+  /* --- Main --- */
+  .main { flex: 1; padding: 32px 40px; max-width: 900px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .page-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+  h1 { font-size: 19px; font-weight: 600; margin: 0; }
+  .subtitle { font-size: 13px; color: var(--text-dim); margin: 4px 0 24px; }
+  .link { font-size: 12.5px; color: var(--cyan); text-decoration: none; }
+
+  /* --- Cards / groups --- */
+  .card {
+    background: var(--panel); border: 1px solid var(--border-soft); border-radius: 8px;
+    padding: 16px 18px; margin-bottom: 16px;
+  }
+  .group-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 1px;
+    color: var(--text-faint); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--panel); border: 1px solid var(--border-soft); border-radius: 8px; padding: 14px 16px; }
+  .stat-label { font-size: 11.5px; color: var(--text-dim); margin-bottom: 6px; }
+  .stat-value { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 600; }
+  .stat-value.warn { color: var(--amber); }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .metric-tile { background: var(--panel-alt); border-radius: 6px; padding: 10px 12px; }
+  .metric-label { font-size: 10.5px; color: var(--text-dim); margin-bottom: 4px; line-height: 1.3; }
+  .metric-value { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 600; }
+  .metric-hint { font-size: 9.5px; color: var(--text-faint); margin-top: 2px; }
+
+  /* --- Form elements --- */
+  label { display: block; font-size: 12.5px; font-weight: 500; color: var(--text-dim); margin-bottom: 5px; }
+  select, input {
+    width: 100%; background: var(--panel-alt); border: 1px solid var(--border);
+    color: var(--text); border-radius: 6px; padding: 8px 10px; font-size: 13.5px;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  select:focus, input:focus { outline: none; border-color: var(--cyan); }
+  .field { margin-bottom: 14px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+  .unit { font-family: 'IBM Plex Mono', monospace; color: var(--text-faint); font-weight: 400; }
+  .btn {
+    width: 100%; background: var(--cyan); color: #0D2B30; border: none; border-radius: 6px;
+    padding: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer; margin-top: 4px;
+  }
+  .btn:hover { opacity: 0.92; }
+  .helper { font-size: 11px; color: var(--text-faint); margin-top: 5px; }
+  .section-divider { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 1px; color: var(--text-faint); text-transform: uppercase; margin: 20px 0 10px; }
+
+  /* --- Status indicators --- */
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .dot.green { background: var(--green); }
+  .dot.amber { background: var(--amber); box-shadow: 0 0 0 3px var(--amber-dim); animation: pulse 2s infinite; }
+  .dot.red { background: var(--red); box-shadow: 0 0 0 3px var(--red-dim); animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  .gauge { position: relative; width: 40px; height: 40px; }
+  .gauge svg { transform: rotate(-90deg); }
+  .gauge-track { fill: none; stroke: var(--border); stroke-width: 4; }
+  .gauge-fill { fill: none; stroke-width: 4; stroke-linecap: round; }
+  .gauge-val { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; }
+
+  /* --- Fleet list --- */
+  .fleet-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 4px; border-bottom: 1px solid var(--border-soft);
+  }
+  .fleet-row:last-child { border-bottom: none; }
+  .fleet-name { font-weight: 500; font-size: 13.5px; }
+  .fleet-sub { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+  .fleet-metrics { display: flex; align-items: center; gap: 22px; }
+  .fleet-metric { text-align: right; }
+  .fleet-metric-label { font-size: 9.5px; color: var(--text-faint); }
+  .fleet-metric-value { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; }
+
+  .list-row { padding: 8px 4px; font-size: 12.5px; border-bottom: 1px solid var(--border-soft); }
+  .list-row:last-child { border-bottom: none; }
+  .list-row .ts { color: var(--text-faint); font-size: 11px; margin-left: 6px; }
+  .card.tint-red { background: var(--red-dim); border-color: #5A3230; }
+  .card.tint-amber { background: var(--amber-dim); border-color: #6B5228; }
+
+  /* --- Recommendation card --- */
+  .rec-card { border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; border: 1px solid; }
+  .rec-card.watch { background: var(--amber-dim); border-color: #6B5228; }
+  .rec-status { font-size: 13.5px; font-weight: 600; }
+  .rec-status.watch { color: var(--amber); }
+  .rec-meta { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--text-dim); }
+  .rec-reasons { margin: 10px 0 0; padding: 0; list-style: none; font-size: 12.5px; }
+  .rec-reasons li { margin-bottom: 4px; padding-left: 14px; position: relative; color: #E8CFA0; }
+  .rec-reasons li::before { content: '—'; position: absolute; left: 0; color: var(--amber); }
+  .rec-disclaimer { font-size: 10.5px; color: var(--text-faint); margin-top: 10px; }
+
+  .rul-note { background: var(--panel-alt); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-top: 16px; }
+  .rul-title { font-size: 12.5px; font-weight: 600; color: var(--amber); margin-bottom: 4px; }
+  .rul-body { font-size: 11.5px; color: var(--text-dim); }
+
+  .fault-alert { display: flex; gap: 10px; align-items: flex-start; }
+  .fault-icon { color: var(--red); font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">GEOMINE<span> · PMS</span></div>
+      <div class="brand-sub">PREDICTIVE MAINTENANCE</div>
+    </div>
+
+    <div class="nav-item active" onclick="showScreen('entry', this)">
+      <span class="nav-label">Log a reading</span>
+      <span class="nav-role">MINER</span>
+    </div>
+    <div class="nav-item" onclick="showScreen('dashboard', this)">
+      <span class="nav-label">Fleet overview</span>
+      <span class="nav-role">IT · ADMIN</span>
+    </div>
+    <div class="nav-item" onclick="showScreen('detail', this)">
+      <span class="nav-label">Generator 3</span>
+      <span class="nav-role">IT · ADMIN</span>
+    </div>
+    <div class="nav-item" onclick="showScreen('reports', this)">
+      <span class="nav-label">Export data</span>
+      <span class="nav-role">IT · ADMIN</span>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="avatar">SK</div>
+      <div>
+        <div class="session-name">Sarah K.</div>
+        <div class="session-role mono">IT</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- SCREEN 1: ENTRY -->
+    <div class="screen active" id="screen-entry">
+      <h1>Log a reading</h1>
+      <p class="subtitle">Select a generator and enter its current parameter values.</p>
+
+      <div class="card">
+        <div class="field">
+          <label>Generator</label>
+          <select><option>Generator 3 — Site B, East Pit</option></select>
+        </div>
+        <div class="field">
+          <label>Reading time</label>
+          <input type="text" value="2026-07-05 14:20" class="mono" />
+          <p class="helper">Defaults to now — change this if you're logging an earlier shift.</p>
+        </div>
+
+        <div class="section-divider">Electrical</div>
+        <div class="param-grid">
+          <div class="field"><label>Voltage <span class="unit">(V)</span></label><input class="mono" value="401" /></div>
+          <div class="field"><label>Output current <span class="unit">(A)</span></label><input class="mono" value="65" /></div>
+          <div class="field"><label>Speed <span class="unit">(rpm)</span></label><input class="mono" value="1500" /></div>
+          <div class="field"><label>Power factor</label><input class="mono" value="0.87" /></div>
+        </div>
+
+        <div class="section-divider">Engine</div>
+        <div class="param-grid">
+          <div class="field"><label>Bearing / stator temp <span class="unit">(°C)</span></label><input class="mono" value="72" /></div>
+          <div class="field"><label>Coolant temp <span class="unit">(°C)</span></label><input class="mono" value="78" /></div>
+          <div class="field"><label>Oil pressure <span class="unit">(bar)</span></label><input class="mono" value="4.1" /></div>
+          <div class="field"><label>Battery voltage <span class="unit">(V)</span></label><input class="mono" value="26.2" /></div>
+          <div class="field"><label>Engine hours <span class="unit">(hr)</span></label><input class="mono" value="1204" /></div>
+          <div class="field"><label>Fuel level <span class="unit">(L)</span></label><input class="mono" value="142" /></div>
+        </div>
+
+        <div class="section-divider">Panel output</div>
+        <div class="param-grid">
+          <div class="field"><label>kW output</label><input class="mono" value="37.5" /></div>
+          <div class="field"><label>kWh cumulative</label><input class="mono" value="88,410" /></div>
+        </div>
+
+        <button class="btn">Submit reading</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: DASHBOARD -->
+    <div class="screen" id="screen-dashboard">
+      <div class="page-head">
+        <h1>Fleet overview</h1>
+        <a class="link" href="#">Export data →</a>
+      </div>
+      <p class="subtitle">6 generators across 2 sites</p>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">Generators</div><div class="stat-value">6</div></div>
+        <div class="stat-card"><div class="stat-label">Readings (recent)</div><div class="stat-value">20</div></div>
+        <div class="stat-card"><div class="stat-label">Flagged (out of range)</div><div class="stat-value warn">3</div></div>
+      </div>
+
+      <div class="group-label">Generator health · sorted by maintenance priority</div>
+      <div class="card">
+        <div class="fleet-row">
+          <div><span class="dot amber" style="margin-right:8px"></span><span class="fleet-name">Generator 3</span><div class="fleet-sub" style="margin-left:15px">Site B — last reading 14 min ago</div></div>
+          <div class="fleet-metrics">
+            <div class="fleet-metric"><div class="fleet-metric-label">LOADING</div><div class="fleet-metric-value">82%</div></div>
+            <div class="fleet-metric"><div class="fleet-metric-label">HEALTH</div><div class="fleet-metric-value" style="color:var(--amber)">64</div></div>
+            <div class="fleet-metric"><div class="fleet-metric-label">PRIORITY</div><div class="fleet-metric-value">41</div></div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div><span class="dot red" style="margin-right:8px"></span><span class="fleet-name">Generator 1</span><div class="fleet-sub" style="margin-left:15px">Site A — last reading 2h ago</div></div>
+          <div class="fleet-metrics">
+            <div class="fleet-metric"><div class="fleet-metric-label">LOADING</div><div class="fleet-metric-value">96%</div></div>
+            <div class="fleet-metric"><div class="fleet-metric-label">HEALTH</div><div class="fleet-metric-value" style="color:var(--red)">38</div></div>
+            <div class="fleet-metric"><div class="fleet-metric-label">PRIORITY</div><div class="fleet-metric-value">67</div></div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div><span class="dot green" style="margin-right:8px"></span><span class="fleet-name">Generator 5</span><div class="fleet-sub" style="margin-left:15px">Site B — last reading 40 min ago</div></div>
+          <div class="fleet-metrics">
+            <div class="fleet-metric"><div class="fleet-metric-label">LOADING</div><div class="fleet-metric-value">74%</div></div>
+            <div class="fleet-metric"><div class="fleet-metric-label">HEALTH</div><div class="fleet-metric-value" style="color:var(--green)">89</div></div>
+            <div class="fleet-metric"><div class="fleet-metric-label">PRIORITY</div><div class="fleet-metric-value">12</div></div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div><span class="dot green" style="margin-right:8px"></span><span class="fleet-name">Generator 2</span><div class="fleet-sub" style="margin-left:15px">Site A — last reading 1h ago</div></div>
+          <div class="fleet-metrics">
+            <div class="fleet-metric"><div class="fleet-metric-label">LOADING</div><div class="fleet-metric-value">68%</div></div>
+            <div class="fleet-metric"><div class="fleet-metric-label">HEALTH</div><div class="fleet-metric-value" style="color:var(--green)">91</div></div>
+            <div class="fleet-metric"><div class="fleet-metric-label">PRIORITY</div><div class="fleet-metric-value">9</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="group-label" style="color:var(--red); margin-top:20px">Out-of-range readings</div>
+      <div class="card tint-red">
+        <div class="list-row"><b>Generator 1</b> — Bearing temp: 118 °C <span class="ts">(Jul 5, 12:04)</span></div>
+        <div class="list-row"><b>Generator 1</b> — Output current: 92 A <span class="ts">(Jul 5, 12:04)</span></div>
+        <div class="list-row"><b>Generator 3</b> — Coolant temp: 96 °C <span class="ts">(Jul 5, 09:40)</span></div>
+      </div>
+
+      <div class="group-label" style="margin-top:20px">Recent readings</div>
+      <div class="card">
+        <div class="list-row">Generator 5 — Fuel level: 168 L <span class="ts">(Jul 5, 14:06)</span></div>
+        <div class="list-row">Generator 3 — Output current: 65 A <span class="ts">(Jul 5, 14:02)</span></div>
+        <div class="list-row">Generator 2 — Engine hours: 890 hr <span class="ts">(Jul 5, 13:51)</span></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: MACHINE DETAIL -->
+    <div class="screen" id="screen-detail">
+      <h1>Generator 3</h1>
+      <p class="subtitle">Site B — East Pit</p>
+
+      <div class="rec-card watch">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="rec-status watch">Watch</span>
+          <span class="rec-meta">CONFIDENCE: MEDIUM · 7 VISITS · ~18H APART</span>
+        </div>
+        <ul class="rec-reasons">
+          <li>Health index is trending low (64/100)</li>
+          <li>1 of the last 7 logged visits had an out-of-range reading</li>
+        </ul>
+        <div class="rec-disclaimer">Rule-based triage guidance from recent readings — not a diagnosis. Verify against the reasons above before acting.</div>
+      </div>
+
+      <div class="card tint-red" style="margin-bottom:20px;">
+        <div class="fault-alert">
+          <span class="fault-icon">!</span>
+          <div>
+            <div style="font-weight:600; font-size:12.5px;">1 open fault</div>
+            <div style="font-size:12px; color:var(--text-dim); margin-top:2px;">E-042 — Low oil pressure alarm <span class="ts">(Jul 2)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="group-label">Latest readings</div>
+        <div class="metric-grid" style="margin-bottom:18px;">
+          <div class="metric-tile"><div class="metric-label">Fuel level</div><div class="metric-value">142 L</div></div>
+          <div class="metric-tile"><div class="metric-label">Engine hours</div><div class="metric-value">1,204 hr</div></div>
+          <div class="metric-tile"><div class="metric-label">Coolant temp</div><div class="metric-value">78°C</div></div>
+          <div class="metric-tile"><div class="metric-label">Open faults</div><div class="metric-value">1</div></div>
+        </div>
+
+        <div class="group-label">Calculated — physics</div>
+        <div class="metric-grid" style="margin-bottom:18px;">
+          <div class="metric-tile"><div class="metric-label">Loading</div><div class="metric-value" style="color:var(--cyan)">82%</div></div>
+          <div class="metric-tile"><div class="metric-label">Apparent power</div><div class="metric-value" style="color:var(--cyan)">44.1 kVA</div></div>
+          <div class="metric-tile"><div class="metric-label">Real power</div><div class="metric-value" style="color:var(--cyan)">37.5 kW</div></div>
+          <div class="metric-tile"><div class="metric-label">Frequency</div><div class="metric-value" style="color:var(--cyan)">50.0 Hz</div></div>
+        </div>
+
+        <div class="group-label">Heuristic — pending calibration</div>
+        <div class="metric-grid">
+          <div class="metric-tile"><div class="metric-label">Thermal stress</div><div class="metric-value" style="color:var(--amber)">91%</div></div>
+          <div class="metric-tile"><div class="metric-label">Health index</div><div class="metric-value" style="color:var(--amber)">64</div></div>
+          <div class="metric-tile"><div class="metric-label">Maintenance priority</div><div class="metric-value" style="color:var(--amber)">41</div></div>
+          <div class="metric-tile"><div class="metric-label">Overload (30d)</div><div class="metric-value">45 min</div><div class="metric-hint">12 samples</div></div>
+          <div class="metric-tile"><div class="metric-label">Idle (30d)</div><div class="metric-value">210 min</div><div class="metric-hint">12 samples</div></div>
+          <div class="metric-tile"><div class="metric-label">Fuel efficiency</div><div class="metric-value">0.31 L/kWh</div></div>
+          <div class="metric-tile"><div class="metric-label">PF trend</div><div class="metric-value" style="font-size:13px;">declining</div><div class="metric-hint">9 samples</div></div>
+        </div>
+
+        <div class="rul-note">
+          <div class="rul-title">Remaining useful life: not yet available</div>
+          <div class="rul-body">RUL requires a degradation curve calibrated against historical failure data, which doesn't exist yet. Revisit once more readings and at least one documented failure/service event have accumulated.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="group-label">Bearing temp — last 10 readings</div>
+        <svg viewBox="0 0 560 140" style="width:100%; height:140px; overflow:visible;">
+          <line x1="0" y1="20" x2="560" y2="20" stroke="var(--border-soft)" stroke-width="1"/>
+          <line x1="0" y1="70" x2="560" y2="70" stroke="var(--border-soft)" stroke-width="1"/>
+          <line x1="0" y1="120" x2="560" y2="120" stroke="var(--border-soft)" stroke-width="1"/>
+          <text x="0" y="16" fill="#5C6270" font-size="10" font-family="IBM Plex Mono">100°C</text>
+          <text x="0" y="66" fill="#5C6270" font-size="10" font-family="IBM Plex Mono">75°C</text>
+          <text x="0" y="116" fill="#5C6270" font-size="10" font-family="IBM Plex Mono">50°C</text>
+          <polyline fill="none" stroke="#4FC3D9" stroke-width="2"
+            points="40,90 96,84 152,78 208,74 264,68 320,60 376,52 432,44 488,38 544,34" />
+          <g fill="#4FC3D9">
+            <circle cx="40" cy="90" r="3"/><circle cx="96" cy="84" r="3"/><circle cx="152" cy="78" r="3"/>
+            <circle cx="208" cy="74" r="3"/><circle cx="264" cy="68" r="3"/><circle cx="320" cy="60" r="3"/>
+            <circle cx="376" cy="52" r="3"/><circle cx="432" cy="44" r="3"/><circle cx="488" cy="38" r="3"/>
+            <circle cx="544" cy="34" r="4" stroke="#181B21" stroke-width="2"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: REPORTS -->
+    <div class="screen" id="screen-reports">
+      <h1>Export data</h1>
+      <p class="subtitle">Download logged readings as a CSV file.</p>
+
+      <div class="card">
+        <div class="field">
+          <label>Generator</label>
+          <select><option>All generators</option></select>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>From</label><input class="mono" value="2026-06-01" /></div>
+          <div class="field"><label>To</label><input class="mono" value="2026-07-05" /></div>
+        </div>
+        <button class="btn">Download CSV</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function showScreen(name, el) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
