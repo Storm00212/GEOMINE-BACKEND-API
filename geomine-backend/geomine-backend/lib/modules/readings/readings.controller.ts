@@ -14,15 +14,19 @@ import { NextRequest, NextResponse } from "next/server";
 export async function logReadingsController(request: NextRequest) {
   try {
     const body = await request.json();
-    const readings = await logReadings({
-      machineId: body.machineId,
-      recordedAt: body.recordedAt,
-      entries: body.entries,
-      notes: body.notes,
-      latitude: body.latitude,
-      longitude: body.longitude,
-      locationAccuracyM: body.locationAccuracyM,
-    });
+    const readings = await logReadings(
+      {
+        machineId: body.machineId,
+        recordedAt: body.recordedAt,
+        entries: body.entries,
+        notes: body.notes,
+        latitude: body.latitude,
+        longitude: body.longitude,
+        locationAccuracyM: body.locationAccuracyM,
+      },
+      request
+    );
+
     return NextResponse.json({ readings });
   } catch (error) {
     return handleApiError(error);
@@ -36,7 +40,8 @@ export async function myReadingsController(request: NextRequest) {
     const limitParam = searchParams.get("limit");
     const rawLimit = limitParam ? parseInt(limitParam, 10) : 50;
     const limit = Number.isNaN(rawLimit) || rawLimit < 1 ? 50 : Math.min(rawLimit, 500);
-    const readings = await listMyReadings(limit);
+    const readings = await listMyReadings(limit, request);
+
     return NextResponse.json({ readings });
   } catch (error) {
     return handleApiError(error);
@@ -50,7 +55,8 @@ export async function correctReadingController(
 ) {
   try {
     const body = await request.json();
-    const reading = await correctReading(params.id, body.value);
+    const reading = await correctReading(params.id, body.value, request);
+
     return NextResponse.json({ reading });
   } catch (error) {
     return handleApiError(error);
@@ -59,11 +65,13 @@ export async function correctReadingController(
 
 /** DELETE /api/readings/[id] — admin only. */
 export async function deleteReadingController(
-  _request: NextRequest,
+  request: NextRequest,
+
   { params }: { params: { id: string } }
 ) {
   try {
-    await deleteReading(params.id);
+    await deleteReading(params.id, request);
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     return handleApiError(error);
