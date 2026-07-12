@@ -10,8 +10,8 @@ import {
   SectionTitle,
   ListRow,
   FleetRow,
-  statusFromHealth,
 } from "@/app/components/geomine-theme";
+import { statusFromHealth } from "@/app/components/theme-utils";
 
 interface DashboardData {
   machines: Machine[];
