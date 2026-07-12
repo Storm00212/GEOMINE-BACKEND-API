@@ -10,8 +10,10 @@ export interface LogFaultInput {
   recordedAt: string;
 }
 
-export async function logFaultEvent(input: LogFaultInput): Promise<FaultEvent> {
-  const auth = await requireRole(["miner", "it", "admin"]);
+export async function logFaultEvent(input: LogFaultInput, request: Request): Promise<FaultEvent> {
+  const auth = await requireRole(request, ["miner", "it", "admin"]);
+
+
 
   if (!input.machineId) throw new ValidationError("machineId is required");
   if (!input.code || input.code.trim() === "") {
@@ -43,7 +45,8 @@ export async function listFaultEvents(
   return repo.selectFaultEvents(machineId, opts);
 }
 
-export async function resolveFault(id: string): Promise<FaultEvent> {
-  await requireRole(["it", "admin"]);
+export async function resolveFault(id: string, request: Request): Promise<FaultEvent> {
+  await requireRole(request, ["it", "admin"]);
   return repo.updateFaultResolved(id);
 }
+
