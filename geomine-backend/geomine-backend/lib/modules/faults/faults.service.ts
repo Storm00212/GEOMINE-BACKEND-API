@@ -20,22 +20,20 @@ export async function logFaultEvent(input: LogFaultInput, request: Request): Pro
     throw new ValidationError("Fault code is required");
   }
 
-  const { data, error } = await repo.insertFaultEvent({
-    machine_id: input.machineId,
-    code: input.code.trim(),
-    description: input.description ?? null,
-    recorded_at: input.recordedAt,
-    entered_by: auth.userId,
-  });
-
-  if (error) {
-    if (error.message.includes("recorded_at cannot be in the future")) {
+  try {
+    return await repo.insertFaultEvent({
+      machine_id: input.machineId,
+      code: input.code.trim(),
+      description: input.description ?? null,
+      recorded_at: input.recordedAt,
+      entered_by: auth.userId,
+    });
+  } catch (error: any) {
+    if (error?.message?.includes("recorded_at cannot be in the future")) {
       throw new ValidationError("Fault time cannot be in the future");
     }
     throw error;
   }
-
-  return data;
 }
 
 export async function listFaultEvents(
