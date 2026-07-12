@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 // Local-dev-only helper: generates a real access token for an
-// ALREADY-INVITED user, without waiting on real email delivery and without
-// needing to click through a URL — this is nicer than the old cookie-based
-// version, since Postman just needs the token pasted into a header now.
+// ALREADY-EXISTING user (a row in app_users), without waiting on email.
 //
-// How it works: uses the service role key to generate a magic-link token,
-// then immediately exchanges that token for a session server-side
-// (auth.verifyOtp), all in one script. Never sends an email, never opens
-// a browser.
+// How it works: queries Neon Postgres directly for the user's id + role,
+// then signs a JWT with jsonwebtoken — exactly the token the API accepts
+// (see lib/auth/jwt.ts). Never sends an email, never opens a browser.
 //
 // This is a standalone CLI script — never an HTTP route, never deployed,
 // only reachable by whoever has this repo and the local .env.local file.
@@ -15,10 +12,11 @@
 // Usage:
 //   node scripts/dev-login.mjs someone@geomine.com
 
-import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import path from "path";
+import { Pool } from "pg";
+import jwt from "jsonwebtoken";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -49,49 +47,37 @@ if (!email) {
 }
 
 const env = loadEnvLocal();
-const url = env.SUPABASE_URL;
-const anonKey = env.SUPABASE_ANON_KEY;
-const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
+const databaseUrl = env.DATABASE_URL;
+const jwtSecret = env.JWT_SECRET;
 
-if (!url || !anonKey || !serviceKey || url.includes("your-project")) {
-  console.error("SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY aren't set in .env.local yet.");
+if (!databaseUrl || !jwtSecret || databaseUrl.includes("your-neon-host")) {
+  console.error("DATABASE_URL / JWT_SECRET aren't set in .env.local yet.");
   process.exit(1);
 }
 
-const admin = createClient(url, serviceKey, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
+const pool = new Pool({ connectionString: databaseUrl });
 
-const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
-  type: "magiclink",
-  email,
-});
+try {
+  const { rows } = await pool.query(
+    `select id, role from app_users where email = $1 limit 1`,
+    [email]
+  );
+  const user = rows[0];
+  if (!user) {
+    console.error(
+      `No app_users row for ${email} — create the user first (signup or invite via /admin/users/new).`
+    );
+    process.exit(1);
+  }
 
-if (linkError) {
-  console.error("Failed to generate link:", linkError.message);
-  console.error("(Make sure this email already has a profile — invite it first via the frontend's /admin/users/new.)");
-  process.exit(1);
+  const token = jwt.sign({ sub: user.id, role: user.role }, jwtSecret, {
+    expiresIn: "7d",
+  });
+
+  console.log(`\nAccess token for ${email} (role: ${user.role}):\n`);
+  console.log(token);
+  console.log("\nPaste this into the 'Authorization: Bearer' header / Postman variable.");
+  console.log("Expires in 7 days — just re-run this script for a fresh one.\n");
+} finally {
+  await pool.end();
 }
-
-const tokenHash = linkData.properties?.hashed_token;
-if (!tokenHash) {
-  console.error("Couldn't extract a token from the generated link.");
-  process.exit(1);
-}
-
-// Exchange the token for a real session, as the anon-key client would.
-const anon = createClient(url, anonKey);
-const { data: sessionData, error: verifyError } = await anon.auth.verifyOtp({
-  type: "email",
-  token_hash: tokenHash,
-});
-
-if (verifyError || !sessionData.session) {
-  console.error("Failed to exchange token for a session:", verifyError?.message);
-  process.exit(1);
-}
-
-console.log(`\nAccess token for ${email} (role comes from their invite):\n`);
-console.log(sessionData.session.access_token);
-console.log("\nPaste this into the collection variable 'access_token' in Postman.");
-console.log("Expires in about an hour — just re-run this script for a fresh one.\n");
