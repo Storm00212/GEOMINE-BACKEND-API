@@ -92,8 +92,8 @@ this split doesn't split the database.
 - Postgres 15+ is required by the schema (`security_invoker` on views).
 - Provision the schema by running the Neon MVP SQL (the consolidated schema,
   including the `app_users` auth tables and the metrics views/functions)
-  against your Neon database. In this repo it lives at the repo root as
-  `full-neon-mvp.sql`.
+  against your Neon database. In this repo it lives at
+  `database/full-neon-mvp.sql`.
 
 ### 2. Environment variables
 Copy `.env.local.example` to `.env.local`:
@@ -188,7 +188,7 @@ AND recency), and a `reasons` array — the specific conditions that fired,
 so it can be checked, not just trusted. Thresholds are a reasonable
 starting point; expect to tune them once Geomine's engineers have seen it
 run against real machines. Full logic and exact thresholds are commented
-in the Neon schema (`full-neon-mvp.sql`).
+in the Neon schema (`database/full-neon-mvp.sql`).
 
 ## Testing with Postman
 ```bash
