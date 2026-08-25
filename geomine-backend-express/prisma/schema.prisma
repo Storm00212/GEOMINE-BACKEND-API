@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model app_users {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String    @unique
+  password_hash String
+  role          user_role @default(miner)
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model fault_events {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  machine_id  String    @db.Uuid
+  code        String
+  description String?
+  resolved    Boolean   @default(false)
+  resolved_at DateTime? @db.Timestamptz(6)
+  recorded_at DateTime  @default(now()) @db.Timestamptz(6)
+  entered_by  String    @db.Uuid
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+  machines    machines  @relation(fields: [machine_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([machine_id, recorded_at(sort: Desc)], map: "idx_fault_machine_time")
+}
+
+model machine_specs {
+  machine_id String   @db.Uuid
+  key        String
+  value      Decimal  @db.Decimal
+  machines   machines @relation(fields: [machine_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([machine_id, key])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model machines {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String
+  machine_type  String          @default("generator")
+  location      String?
+  status        String?         @default("active")
+  created_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  phase_type    String          @default("three_phase")
+  fault_events  fault_events[]
+  machine_specs machine_specs[]
+  readings      readings[]
+  refuel_events refuel_events[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model parameter_definitions {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  machine_type  String     @default("generator")
+  key           String
+  label         String
+  unit          String?
+  min_expected  Decimal?   @db.Decimal
+  max_expected  Decimal?   @db.Decimal
+  sort_order    Int?       @default(0)
+  active        Boolean?   @default(true)
+  is_cumulative Boolean    @default(false)
+  readings      readings[]
+
+  @@unique([machine_type, key])
+}
+
+model profiles {
+  id         String    @id @db.Uuid
+  full_name  String?
+  role       user_role @default(miner)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model readings {
+  id                    String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  machine_id            String                @db.Uuid
+  parameter_id          String                @db.Uuid
+  value                 Decimal               @db.Decimal
+  recorded_at           DateTime              @default(now()) @db.Timestamptz(6)
+  entered_by            String                @db.Uuid
+  entry_method          String?               @default("manual")
+  flagged               Boolean?              @default(false)
+  notes                 String?
+  created_at            DateTime?             @default(now()) @db.Timestamptz(6)
+  latitude              Decimal?              @db.Decimal
+  longitude             Decimal?              @db.Decimal
+  location_accuracy_m   Decimal?              @db.Decimal
+  machines              machines              @relation(fields: [machine_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  parameter_definitions parameter_definitions @relation(fields: [parameter_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([machine_id, recorded_at(sort: Desc)], map: "idx_readings_machine_time")
+  @@index([parameter_id, recorded_at(sort: Desc)], map: "idx_readings_param_time")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model refuel_events {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  machine_id   String    @db.Uuid
+  liters_added Decimal   @db.Decimal
+  recorded_at  DateTime  @default(now()) @db.Timestamptz(6)
+  entered_by   String    @db.Uuid
+  notes        String?
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  machines     machines  @relation(fields: [machine_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([machine_id, recorded_at(sort: Desc)], map: "idx_refuel_machine_time")
+}
+
+enum user_role {
+  miner
+  it
+  admin
+}
