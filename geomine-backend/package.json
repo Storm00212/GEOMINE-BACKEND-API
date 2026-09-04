@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "node ./scripts/wait-for-db.mjs && next dev -p 4000",
     "build": "next build",
+    "//start-note": "CHANGE 2026-09-04 (Render deploy): was `-p 4000`. Render injects $PORT (typically 10000); a hardcoded port made the service fail to bind / pass health checks. ${PORT:-4000} uses Render's PORT in production and falls back to 4000 for local dev.",
     "start": "node ./scripts/wait-for-db.mjs && next start -p ${PORT:-4000}"
   },
   "dependencies": {

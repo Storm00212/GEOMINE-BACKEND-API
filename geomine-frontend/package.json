@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "//start-note": "NOTE 2026-09-04: no change made here. Frontend binds to Render's $PORT automatically because `next start` reads PORT from the environment by default.",
     "start": "next start",
     "lint": "next lint"
   },
