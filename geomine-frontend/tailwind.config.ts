@@ -30,9 +30,14 @@ const config: Config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.45" },
         },
+        "skeleton-shimmer": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
       },
       animation: {
         "dot-pulse": "dot-pulse 1.6s ease-in-out infinite",
+        "skeleton-shimmer": "skeleton-shimmer 1.4s ease-in-out infinite",
       },
     },
   },
