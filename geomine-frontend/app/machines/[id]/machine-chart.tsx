@@ -16,7 +16,7 @@ import { Card, DividerLabel, MetricTile, SelectInput } from "@/app/components/ge
 
 interface ReadingRow {
   id: string;
-  value: number;
+  value: number | string;
   recorded_at: string;
   flagged: boolean;
   parameter_id: string;
@@ -41,7 +41,7 @@ export default function MachineChart({
       series.map((r) => ({
         time: new Date(r.recorded_at).toLocaleDateString(),
         full: new Date(r.recorded_at).toLocaleString(),
-        value: r.value,
+        value: Number(r.value),
         flagged: r.flagged,
       })),
     [series]
@@ -50,7 +50,9 @@ export default function MachineChart({
   const selectedParam = parameters.find((p) => p.id === paramId);
 
   const stats = useMemo(() => {
-    const values = series.map((r) => r.value);
+    const values = series
+      .map((r) => Number(r.value))
+      .filter((value) => Number.isFinite(value));
     if (values.length === 0) return null;
     const mean = values.reduce((a, b) => a + b, 0) / values.length;
     const variance = values.reduce((a, b) => a + (b - mean) ** 2, 0) / values.length;
