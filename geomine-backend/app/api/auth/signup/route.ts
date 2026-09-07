@@ -12,17 +12,22 @@ export async function POST(request: NextRequest) {
     const { email, password, role } = await request.json();
 
     if (!email || typeof email !== "string") {
-      return NextResponse.json({ error: "email is required" }, { status: 400 });
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
     if (!password || typeof password !== "string" || password.length < 8) {
       return NextResponse.json(
-        { error: "password must be at least 8 characters" },
+        { error: "Password must be at least 8 characters" },
         { status: 400 }
       );
     }
 
-    const allowedRoles = new Set(["miner", "it", "admin"]);
-    const resolvedRole = role && allowedRoles.has(role) ? role : "miner";
+    // Public self-signup is locked to the `miner` role. Higher-privilege
+    // roles (it, admin) are created via POST /api/admin/invite, which
+    // issues a temporary password the admin relays to the new user. We
+    // silently coerce any non-miner role to miner here so a tampered
+    // client can't escalate; the response status is still 200, but the
+    // resulting account has miner-only permissions.
+    const resolvedRole = "miner";
 
     const existing = await query<{ id: string }>(
       `select id from app_users where email = $1 limit 1`,
