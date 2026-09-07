@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { backendFetchClient } from "@/lib/backend-client-browser";
 
 /**
@@ -9,9 +9,13 @@ import { backendFetchClient } from "@/lib/backend-client-browser";
  * token from localStorage, so any page rendering authenticated data has to
  * fetch it this way instead of at request time on the server.
  */
-export function useBackendData<T>(path: string, fallback: T): { data: T; loading: boolean } {
+export function useBackendData<T>(
+  path: string,
+  fallback: T
+): { data: T; loading: boolean; refetch: () => void } {
   const [data, setData] = useState<T>(fallback);
   const [loading, setLoading] = useState(true);
+  const [nonce, setNonce] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,7 +34,9 @@ export function useBackendData<T>(path: string, fallback: T): { data: T; loading
     return () => {
       cancelled = true;
     };
-  }, [path]);
+  }, [path, nonce]);
 
-  return { data, loading };
+  const refetch = useCallback(() => setNonce((n) => n + 1), []);
+
+  return { data, loading, refetch };
 }
