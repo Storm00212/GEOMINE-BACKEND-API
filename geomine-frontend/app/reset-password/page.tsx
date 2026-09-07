@@ -1,56 +1,36 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { AuthShell, AuthMessage, Field, TextInput, Button } from "@/app/components/geomine-theme";
+import Link from "next/link";
+import { AuthShell } from "@/app/components/geomine-theme";
 
 export default function ResetPasswordPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [message, setMessage] = useState<string | null>(null);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus("submitting");
-    setMessage(null);
-
-    // Auth is handled by the backend (Neon Postgres + custom JWT), not
-    // Supabase. There is no self-service reset endpoint — an administrator
-    // re-invites the user via POST /api/admin/invite (which issues a fresh
-    // temporary password). For now, guide the user to contact an admin.
-    setStatus("success");
-    setMessage("Password reset is handled by your administrator. Please contact them, or sign in.");
-
-    setTimeout(() => router.replace("/login"), 1200);
-  }
-
   return (
     <AuthShell
-      title="Reset your password"
-      subtitle="Contact an administrator to reset your password."
+      title="Password reset"
+      subtitle="Self-service reset is not available."
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Field label="Email" htmlFor="email">
-          <TextInput
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@geomine.com"
-          />
-        </Field>
+      <div className="space-y-4 text-[13px] text-ink-dim">
+        <p>
+          Geomine accounts are created and managed by your site administrator.
+          If you have forgotten your password, ask the administrator to invite
+          you again — they will generate a new temporary password you can use
+          to sign in and change it.
+        </p>
+        <p className="text-ink-faint">
+          If you are the administrator, sign in and use the{" "}
+          <span className="font-mono text-ink">Invite user</span> action to
+          re-issue credentials.
+        </p>
+      </div>
 
-        <Button type="submit" disabled={status === "submitting"}>
-          {status === "submitting" ? "Processing…" : "Request reset"}
-        </Button>
-
-        {message && (
-          <AuthMessage status={status === "error" ? "error" : "success"} message={message} />
-        )}
-      </form>
+      <div className="mt-6 flex flex-col gap-2">
+        <Link
+          href="/login"
+          className="w-full rounded-md bg-cyan px-4 py-2.5 text-center text-[13.5px] font-semibold text-[#0D2B30] transition hover:opacity-90"
+        >
+          Back to sign in
+        </Link>
+      </div>
     </AuthShell>
   );
 }
-
