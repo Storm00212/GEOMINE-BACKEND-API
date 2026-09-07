@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { clearAccessToken } from "@/lib/auth/token-storage";
@@ -175,6 +175,147 @@ function Sidebar({
 }
 
 /* ------------------------------------------------------------------ */
+/* Loading + animation primitives                                    */
+/* ------------------------------------------------------------------ */
+
+export function Skeleton({
+  className = "",
+  rounded = "rounded-md",
+}: {
+  className?: string;
+  rounded?: string;
+}) {
+  return (
+    <div
+      className={
+        "relative overflow-hidden bg-panel-alt " +
+        rounded +
+        " " +
+        className
+      }
+      aria-hidden
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%)",
+          animation: "skeleton-shimmer 1.4s ease-in-out infinite",
+        }}
+      />
+    </div>
+  );
+}
+
+export function Spinner({ size = 14 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      className="animate-spin"
+      aria-hidden
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.25"
+        strokeWidth="3"
+      />
+      <path
+        d="M21 12a9 9 0 0 0-9-9"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * CountUp — animates a numeric value from 0 → target over `duration` ms.
+ * Used in stat cards to make the dashboard feel alive. Returns the raw
+ * value (not formatted) so callers can pre-format.
+ */
+export function CountUp({
+  value,
+  duration = 700,
+  className = "",
+}: {
+  value: number | null | undefined;
+  duration?: number;
+  className?: string;
+}) {
+  const [display, setDisplay] = useState(0);
+  const startedAtRef = React.useRef<number | null>(null);
+  const rafRef = React.useRef<number | null>(null);
+
+  useEffect(() => {
+    if (value === null || value === undefined || Number.isNaN(value)) {
+      setDisplay(0);
+      return;
+    }
+    startedAtRef.current = null;
+    const animate = (ts: number) => {
+      if (startedAtRef.current === null) startedAtRef.current = ts;
+      const elapsed = ts - startedAtRef.current;
+      const t = Math.min(1, elapsed / duration);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(value * eased);
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      } else {
+        setDisplay(value);
+      }
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [value, duration]);
+
+  return <span className={className}>{Math.round(display)}</span>;
+}
+
+export function Chip({
+  active,
+  onClick,
+  children,
+  tone = "neutral",
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  tone?: "neutral" | "green" | "amber" | "red";
+}) {
+  const activeMap: Record<string, string> = {
+    green: "border-green/60 bg-green-dim/40 text-green",
+    amber: "border-amber/60 bg-amber-dim/40 text-amber",
+    red: "border-red/60 bg-red-dim/40 text-red",
+    neutral: "border-cyan/60 bg-cyan-dim/40 text-cyan",
+  };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        "rounded-full border px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.6px] transition " +
+        (active
+          ? activeMap[tone]
+          : "border-line bg-panel text-ink-dim hover:border-line-soft hover:text-ink")
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Primitive building blocks                                          */
 /* ------------------------------------------------------------------ */
 
@@ -227,7 +368,7 @@ export function StatCard({
   tone = "neutral",
 }: {
   label: string;
-  value: string | number;
+  value: React.ReactNode;
   tone?: StatusTone;
 }) {
   return (
