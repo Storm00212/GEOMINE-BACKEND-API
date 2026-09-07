@@ -5,6 +5,12 @@ import { HealthGauge, Skeleton, Card, Chip } from "@/app/components/geomine-them
 import type { GeneratorHealthSnapshot, MaintenanceRecommendation } from "@/types/metrics";
 import type { Machine } from "@/types/database";
 
+function numericOrNull(value: number | string | null | undefined): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const numericValue = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(numericValue) ? numericValue : null;
+}
+
 /* ------------------------------------------------------------------ */
 /* Recommendation banner                                               */
 /* ------------------------------------------------------------------ */
@@ -226,7 +232,7 @@ export function BearingTempStrip({
       </div>
       <div className="space-y-2">
         {fleet.map((s) => {
-          const t = s.latest_bearing_temp;
+          const t = numericOrNull(s.latest_bearing_temp);
           const { bar, text, tone } = tempTone(t);
           const pct = tempPct(t);
           return (
