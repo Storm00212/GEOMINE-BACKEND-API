@@ -56,3 +56,16 @@ npm run dev             # nodemon, :4000
 
 `postinstall` runs `prisma generate` automatically. If the DB schema
 changes, re-run `npm run prisma:pull` to re-introspect.
+
+## Unit tests
+
+Run the backend build and unit suite with:
+
+```bash
+npm run test:unit
+```
+
+Unit tests live in `tests/unit/` and use Node's built-in test runner. They
+should exercise isolated logic without starting Express or connecting to
+Postgres. Integration and end-to-end tests will use separate test categories
+and commands when those suites are added.
