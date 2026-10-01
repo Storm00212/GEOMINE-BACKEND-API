@@ -3,28 +3,66 @@
 @tailwind utilities;
 
 :root {
-  --bg: #181b21;
-  --panel: #21252d;
-  --panel-alt: #282d37;
-  --border: #363c48;
-  --border-soft: #2c313c;
-  --text: #edeff3;
-  --text-dim: #ffffff;
-  --text-faint: #ffffff;
-  --amber: #e8a33d;
-  --green: #4fae7c;
-  --red: #e0574f;
-  --cyan: #4fc3d9;
+  --base: 24 27 33;
+  --side: 20 22 27;
+  --panel: 33 37 45;
+  --panel-alt: 40 45 55;
+  --line: 54 60 72;
+  --line-soft: 44 49 60;
+  --ink: 237 239 243;
+  --ink-dim: 255 255 255;
+  --ink-faint: 255 255 255;
+  --amber: 232 163 61;
+  --amber-dim: 74 59 34;
+  --green: 79 174 124;
+  --green-dim: 34 57 46;
+  --red: 224 87 79;
+  --red-dim: 64 35 35;
+  --cyan: 79 195 217;
+  --cyan-dim: 30 52 56;
+  --button-ink: 13 43 48;
+  --status-green: 47 78 60;
+  --status-amber: 107 82 40;
+  --status-red: 90 50 48;
+  --status-cyan: 44 74 80;
+  --shadow-opacity: 0.4;
 }
 
-html {
+html[data-theme="dark"] {
   color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --base: 242 246 248;
+  --side: 231 238 242;
+  --panel: 255 255 255;
+  --panel-alt: 234 241 244;
+  --line: 207 220 227;
+  --line-soft: 220 229 234;
+  --ink: 24 38 48;
+  --ink-dim: 78 98 111;
+  --ink-faint: 101 121 133;
+  --amber: 166 90 0;
+  --amber-dim: 255 240 216;
+  --green: 38 115 77;
+  --green-dim: 225 242 233;
+  --red: 179 61 58;
+  --red-dim: 251 232 231;
+  --cyan: 0 127 158;
+  --cyan-dim: 221 243 247;
+  --button-ink: 255 255 255;
+  --status-green: 185 217 197;
+  --status-amber: 232 202 161;
+  --status-red: 229 184 182;
+  --status-cyan: 182 221 229;
+  --shadow-opacity: 0.14;
 }
 
 body {
   margin: 0;
-  background: #181b21;
-  color: #edeff3;
+  background: rgb(var(--base));
+  color: rgb(var(--ink));
   font-family: var(--font-sans), "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
@@ -35,24 +73,27 @@ body {
   box-sizing: border-box;
 }
 
-/* Make the dark scrollbars feel intentional on the engineering UI */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #14161b;
+  background: rgb(var(--side));
 }
 ::-webkit-scrollbar-thumb {
-  background: #2c313c;
+  background: rgb(var(--line-soft));
   border-radius: 6px;
-  border: 2px solid #14161b;
+  border: 2px solid rgb(var(--side));
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #363c48;
+  background: rgb(var(--line));
 }
 
 @layer components {
+  .gm-status-halo {
+    box-shadow: 0 0 0 4px rgb(var(--cyan) / 0.2);
+  }
+
   /* Status dot with soft pulse halo */
   .gm-dot {
     width: 8px;
@@ -62,42 +103,41 @@ body {
     flex-shrink: 0;
   }
   .gm-dot.green {
-    background: var(--green);
-    box-shadow: 0 0 0 3px rgba(79, 174, 124, 0.18);
+    background: rgb(var(--green));
+    box-shadow: 0 0 0 3px rgb(var(--green) / 0.18);
   }
   .gm-dot.amber {
-    background: var(--amber);
-    box-shadow: 0 0 0 3px rgba(232, 163, 61, 0.18);
+    background: rgb(var(--amber));
+    box-shadow: 0 0 0 3px rgb(var(--amber) / 0.18);
     animation: dot-pulse 2s ease-in-out infinite;
   }
   .gm-dot.red {
-    background: var(--red);
-    box-shadow: 0 0 0 3px rgba(224, 87, 79, 0.18);
+    background: rgb(var(--red));
+    box-shadow: 0 0 0 3px rgb(var(--red) / 0.18);
     animation: dot-pulse 1.4s ease-in-out infinite;
   }
 }
 
-/* Recharts dark theme overrides */
 .recharts-cartesian-grid line {
-  stroke: #2c313c;
+  stroke: rgb(var(--line-soft));
 }
 .recharts-text {
-  fill: #ffffff;
+  fill: rgb(var(--ink-dim));
 }
 .recharts-tooltip-wrapper:focus {
   outline: none;
 }
 .gm-chart-tooltip {
-  background: #21252d;
-  border: 1px solid #363c48;
+  background: rgb(var(--panel));
+  border: 1px solid rgb(var(--line));
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 12px;
-  color: #edeff3;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  color: rgb(var(--ink));
+  box-shadow: 0 8px 24px rgb(0 0 0 / var(--shadow-opacity));
 }
 .gm-chart-tooltip .gm-tt-label {
-  color: #ffffff;
+  color: rgb(var(--ink-dim));
   font-family: "IBM Plex Mono", monospace;
   font-size: 10.5px;
   text-transform: uppercase;
@@ -107,5 +147,5 @@ body {
   font-family: "IBM Plex Mono", monospace;
   font-size: 15px;
   font-weight: 600;
-  color: #4fc3d9;
+  color: rgb(var(--cyan));
 }
