@@ -26,7 +26,7 @@ export default function ResetPasswordPage() {
       <div className="mt-6 flex flex-col gap-2">
         <Link
           href="/login"
-          className="w-full rounded-md bg-cyan px-4 py-2.5 text-center text-[13.5px] font-semibold text-[#0D2B30] transition hover:opacity-90"
+          className="w-full rounded-md bg-cyan px-4 py-2.5 text-center text-[13.5px] font-semibold text-button-ink transition hover:opacity-90"
         >
           Back to sign in
         </Link>
