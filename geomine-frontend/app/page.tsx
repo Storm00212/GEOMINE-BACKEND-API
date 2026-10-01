@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAccessToken } from "@/lib/auth/token-storage";
 import { StatCard, Badge } from "@/app/components/geomine-theme";
+import { ThemeToggle } from "@/app/components/theme-provider";
 
 export default function Home() {
   const router = useRouter();
@@ -21,6 +22,9 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-base">
         <div className="mx-auto max-w-5xl px-4 py-10 md:py-16">
+          <div className="mb-4 flex justify-end">
+            <ThemeToggle />
+          </div>
           <div className="relative overflow-hidden rounded-2xl border border-line-soft bg-panel">
             <div className="pointer-events-none absolute inset-0 opacity-70">
               <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-cyan/20 blur-3xl" />
@@ -31,7 +35,7 @@ export default function Home() {
               <div className="flex flex-col gap-8 md:flex-row md:items-start">
                 <div className="flex-1">
                   <div className="inline-flex items-center gap-3 rounded-full border border-line bg-panel-alt px-4 py-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-cyan shadow-[0_0_0_4px_rgba(79,195,217,0.2)]" />
+                    <span className="gm-status-halo h-2.5 w-2.5 rounded-full bg-cyan" />
                     <span className="font-mono text-[11px] tracking-[0.2em] text-ink-dim">
                       PREDICTIVE MAINTENANCE
                     </span>
@@ -136,23 +140,23 @@ export default function Home() {
 
           <style jsx>{`
             .btn-primary {
-              background: #4fc3d9;
-              color: #0d2b30;
+              background: rgb(var(--cyan));
+              color: rgb(var(--button-ink));
               border: none;
               border-radius: 10px;
               padding: 10px 16px;
               font-weight: 700;
               font-size: 13px;
               cursor: pointer;
-              box-shadow: 0 10px 30px rgba(79, 195, 217, 0.12);
+              box-shadow: 0 10px 30px rgb(var(--cyan) / 0.12);
             }
             .btn-primary:hover {
               opacity: 0.92;
             }
             .btn-secondary {
-              background: rgba(40, 45, 55, 0.6);
-              border: 1px solid #363c48;
-              color: #edeff3;
+              background: rgb(var(--panel-alt) / 0.6);
+              border: 1px solid rgb(var(--line));
+              color: rgb(var(--ink));
               border-radius: 10px;
               padding: 10px 16px;
               font-weight: 700;
@@ -160,7 +164,7 @@ export default function Home() {
               cursor: pointer;
             }
             .btn-secondary:hover {
-              background: rgba(40, 45, 55, 0.9);
+              background: rgb(var(--panel-alt) / 0.9);
             }
           `}</style>
         </div>
