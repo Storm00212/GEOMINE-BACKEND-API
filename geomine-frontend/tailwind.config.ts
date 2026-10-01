@@ -8,15 +8,44 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        base: "#181B21",
-        side: "#14161B",
-        panel: { DEFAULT: "#21252D", alt: "#282D37" },
-        line: { DEFAULT: "#363C48", soft: "#2C313C" },
-        ink: { DEFAULT: "#EDEFF3", dim: "#FFFFFF", faint: "#FFFFFF" },
-        amber: { DEFAULT: "#E8A33D", dim: "#4A3B22" },
-        green: { DEFAULT: "#4FAE7C", dim: "#22392E" },
-        red: { DEFAULT: "#E0574F", dim: "#402323" },
-        cyan: { DEFAULT: "#4FC3D9", dim: "#1E3438" },
+        base: "rgb(var(--base) / <alpha-value>)",
+        side: "rgb(var(--side) / <alpha-value>)",
+        panel: {
+          DEFAULT: "rgb(var(--panel) / <alpha-value>)",
+          alt: "rgb(var(--panel-alt) / <alpha-value>)",
+        },
+        line: {
+          DEFAULT: "rgb(var(--line) / <alpha-value>)",
+          soft: "rgb(var(--line-soft) / <alpha-value>)",
+        },
+        ink: {
+          DEFAULT: "rgb(var(--ink) / <alpha-value>)",
+          dim: "rgb(var(--ink-dim) / <alpha-value>)",
+          faint: "rgb(var(--ink-faint) / <alpha-value>)",
+        },
+        amber: {
+          DEFAULT: "rgb(var(--amber) / <alpha-value>)",
+          dim: "rgb(var(--amber-dim) / <alpha-value>)",
+        },
+        green: {
+          DEFAULT: "rgb(var(--green) / <alpha-value>)",
+          dim: "rgb(var(--green-dim) / <alpha-value>)",
+        },
+        red: {
+          DEFAULT: "rgb(var(--red) / <alpha-value>)",
+          dim: "rgb(var(--red-dim) / <alpha-value>)",
+        },
+        cyan: {
+          DEFAULT: "rgb(var(--cyan) / <alpha-value>)",
+          dim: "rgb(var(--cyan-dim) / <alpha-value>)",
+        },
+        buttonInk: "rgb(var(--button-ink) / <alpha-value>)",
+        status: {
+          green: "rgb(var(--status-green) / <alpha-value>)",
+          amber: "rgb(var(--status-amber) / <alpha-value>)",
+          red: "rgb(var(--status-red) / <alpha-value>)",
+          cyan: "rgb(var(--status-cyan) / <alpha-value>)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "IBM Plex Sans", "ui-sans-serif", "system-ui", "sans-serif"],
