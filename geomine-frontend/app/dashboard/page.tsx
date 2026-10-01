@@ -157,7 +157,7 @@ export default function DashboardPage() {
                 className={
                   "rounded-[5px] px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-[0.5px] transition " +
                   (range === d
-                    ? "bg-cyan text-[#0D2B30]"
+                    ? "bg-cyan text-button-ink"
                     : "text-ink-dim hover:text-ink")
                 }
               >
