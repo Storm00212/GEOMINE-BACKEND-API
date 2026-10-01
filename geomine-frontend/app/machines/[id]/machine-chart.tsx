@@ -106,26 +106,26 @@ export default function MachineChart({
             <AreaChart data={chartData} margin={{ top: 10, right: 12, left: 0, bottom: 4 }}>
               <defs>
                 <linearGradient id="gmLine" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#4FC3D9" stopOpacity={0.28} />
-                  <stop offset="100%" stopColor="#4FC3D9" stopOpacity={0} />
+                  <stop offset="0%" stopColor="rgb(var(--cyan))" stopOpacity={0.28} />
+                  <stop offset="100%" stopColor="rgb(var(--cyan))" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2C313C" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--line-soft))" vertical={false} />
               {flagBand && (
                 <>
-                  <ReferenceLine y={flagBand.max} stroke="#E0574F" strokeDasharray="4 4" strokeOpacity={0.5} />
-                  <ReferenceLine y={flagBand.min} stroke="#E0574F" strokeDasharray="4 4" strokeOpacity={0.5} />
+                  <ReferenceLine y={flagBand.max} stroke="rgb(var(--red))" strokeDasharray="4 4" strokeOpacity={0.5} />
+                  <ReferenceLine y={flagBand.min} stroke="rgb(var(--red))" strokeDasharray="4 4" strokeOpacity={0.5} />
                 </>
               )}
               <XAxis
                 dataKey="time"
                 fontSize={11}
-                stroke="#FFFFFF"
+                stroke="rgb(var(--line))"
                 tickLine={false}
               />
               <YAxis
                 fontSize={11}
-                stroke="#FFFFFF"
+                stroke="rgb(var(--line))"
                 tickLine={false}
                 width={44}
                 label={{
@@ -133,24 +133,24 @@ export default function MachineChart({
                   angle: -90,
                   position: "insideLeft",
                   fontSize: 11,
-                  fill: "#FFFFFF",
+                  fill: "rgb(var(--ink-dim))",
                 }}
               />
               <Tooltip
-                contentStyle={{ background: "#21252D", border: "1px solid #363C48", borderRadius: 8, color: "#EDEFF3" }}
-                labelStyle={{ color: "#FFFFFF" }}
-                itemStyle={{ color: "#4FC3D9" }}
+                contentStyle={{ background: "rgb(var(--panel))", border: "1px solid rgb(var(--line))", borderRadius: 8, color: "rgb(var(--ink))" }}
+                labelStyle={{ color: "rgb(var(--ink-dim))" }}
+                itemStyle={{ color: "rgb(var(--cyan))" }}
                 formatter={(v: any) => [`${v} ${selectedParam?.unit ?? ""}`, selectedParam?.label ?? "value"]}
                 labelFormatter={(l) => chartData.find((d) => d.time === l)?.full ?? l}
               />
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="#4FC3D9"
+                stroke="rgb(var(--cyan))"
                 strokeWidth={2}
                 fill="url(#gmLine)"
-                dot={{ r: 2, fill: "#4FC3D9", strokeWidth: 0 }}
-                activeDot={{ r: 4, fill: "#4FC3D9", stroke: "#0B0D12", strokeWidth: 2 }}
+                dot={{ r: 2, fill: "rgb(var(--cyan))", strokeWidth: 0 }}
+                activeDot={{ r: 4, fill: "rgb(var(--cyan))", stroke: "rgb(var(--base))", strokeWidth: 2 }}
               />
             </AreaChart>
           </ResponsiveContainer>
