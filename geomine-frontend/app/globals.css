@@ -16,7 +16,7 @@
   --amber-dim: 74 59 34;
   --green: 79 174 124;
   --green-dim: 34 57 46;
-  --red: 224 87 79;
+  --red: 240 120 112;
   --red-dim: 64 35 35;
   --cyan: 79 195 217;
   --cyan-dim: 30 52 56;
@@ -42,14 +42,14 @@ html[data-theme="light"] {
   --line-soft: 220 229 234;
   --ink: 24 38 48;
   --ink-dim: 78 98 111;
-  --ink-faint: 101 121 133;
+  --ink-faint: 83 107 120;
   --amber: 166 90 0;
   --amber-dim: 255 240 216;
   --green: 38 115 77;
   --green-dim: 225 242 233;
   --red: 179 61 58;
   --red-dim: 251 232 231;
-  --cyan: 0 127 158;
+  --cyan: 0 111 138;
   --cyan-dim: 221 243 247;
   --button-ink: 255 255 255;
   --status-green: 185 217 197;
