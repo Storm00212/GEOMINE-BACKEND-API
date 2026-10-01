@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import * as repo from "./repositories";
 import { signAccessToken } from "./middleware";
 import { ValidationError, ConflictError, UnauthorizedError, type AuthContext, type UserRole } from "./types";
+export { toCsv } from "./csv";
 
 // AUTH
 
@@ -277,32 +278,6 @@ export interface ExportFilters {
 // range, for a CSV export.
 export async function getReadingsForExport(filters: ExportFilters) {
   return repo.findReadingsForExport(filters);
-}
-
-// Formats reading rows as CSV text — one header row plus one quoted,
-// comma-separated row per reading, with embedded quotes escaped. Pure
-// formatting, not a database concern, which is why it lives here rather
-// than in the repository.
-export function toCsv(rows: Awaited<ReturnType<typeof getReadingsForExport>>): string {
-  const header = "Machine,Parameter,Value,Unit,Recorded At,Flagged,Entry Method\n";
-
-  const body = rows
-    .map((r) =>
-      [
-        r.machine_name ?? "",
-        r.parameter_label ?? "",
-        r.value,
-        r.parameter_unit ?? "",
-        new Date(r.recorded_at).toISOString(),
-        r.flagged ? "yes" : "no",
-        r.entry_method,
-      ]
-        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
-        .join(",")
-    )
-    .join("\n");
-
-  return header + body;
 }
 
 // METRICS
