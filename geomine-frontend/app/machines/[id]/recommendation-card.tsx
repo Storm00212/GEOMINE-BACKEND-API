@@ -6,21 +6,21 @@ const STYLES: Record<
   { border: string; bg: string; text: string; label: string; accent: string }
 > = {
   healthy: {
-    border: "border-[#2F4E3C]",
+    border: "border-status-green",
     bg: "bg-green-dim/50",
     text: "text-green",
     accent: "text-green",
     label: "Healthy",
   },
   watch: {
-    border: "border-[#6B5228]",
+    border: "border-status-amber",
     bg: "bg-amber-dim/40",
     text: "text-amber",
     accent: "text-amber",
     label: "Watch",
   },
   needs_maintenance: {
-    border: "border-[#5A3230]",
+    border: "border-status-red",
     bg: "bg-red-dim/50",
     text: "text-red",
     accent: "text-red",
