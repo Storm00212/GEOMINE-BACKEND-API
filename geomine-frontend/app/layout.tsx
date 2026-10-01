@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { ThemeProvider } from "./components/theme-provider";
 import "./globals.css";
 
 const plexSans = IBM_Plex_Sans({
@@ -27,8 +28,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${plexSans.variable} ${plexMono.variable}`}>
-      <body className="min-h-screen bg-base text-ink antialiased">{children}</body>
+    <html lang="en" data-theme="dark" suppressHydrationWarning className={`${plexSans.variable} ${plexMono.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try { const theme = localStorage.getItem("geomine-theme"); if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme; } catch {}',
+          }}
+        />
+      </head>
+      <body className="min-h-screen bg-base text-ink antialiased">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }
