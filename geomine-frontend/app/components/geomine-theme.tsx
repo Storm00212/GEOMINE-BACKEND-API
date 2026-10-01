@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { clearAccessToken } from "@/lib/auth/token-storage";
+import { ThemeToggle } from "./theme-provider";
 import {
   StatusTone,
   TONE_TEXT,
@@ -55,27 +56,30 @@ export function AppShell({
         <Link href="/dashboard" className="text-[15px] font-semibold tracking-[0.5px]">
           GEOMINE<span className="text-amber"> · PMS</span>
         </Link>
-        <button
-          type="button"
-          aria-label="Toggle navigation"
-          onClick={() => setMenuOpen((v) => !v)}
-          className="flex h-9 w-9 items-center justify-center rounded-md border border-line text-ink-dim"
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6">
-            {menuOpen ? (
-              <>
-                <line x1="4" y1="4" x2="14" y2="14" />
-                <line x1="14" y1="4" x2="4" y2="14" />
-              </>
-            ) : (
-              <>
-                <line x1="3" y1="5" x2="15" y2="5" />
-                <line x1="3" y1="9" x2="15" y2="9" />
-                <line x1="3" y1="13" x2="15" y2="13" />
-              </>
-            )}
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle className="h-9 px-2 text-[10px] xs:px-3" />
+          <button
+            type="button"
+            aria-label="Toggle navigation"
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex h-9 w-9 items-center justify-center rounded-md border border-line text-ink-dim"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6">
+              {menuOpen ? (
+                <>
+                  <line x1="4" y1="4" x2="14" y2="14" />
+                  <line x1="14" y1="4" x2="4" y2="14" />
+                </>
+              ) : (
+                <>
+                  <line x1="3" y1="5" x2="15" y2="5" />
+                  <line x1="3" y1="9" x2="15" y2="9" />
+                  <line x1="3" y1="13" x2="15" y2="13" />
+                </>
+              )}
+            </svg>
+          </button>
+        </div>
       </header>
 
       {/* Fixed sidebar (desktop) */}
@@ -154,6 +158,10 @@ function Sidebar({
         })}
       </div>
 
+      <div className="mb-4 hidden md:block">
+        <ThemeToggle className="w-full justify-start" />
+      </div>
+
       <div className="flex items-center gap-3 border-t border-line-soft pt-4">
         <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-cyan-dim font-semibold text-[11px] text-cyan">
           {initials}
@@ -199,7 +207,7 @@ export function Skeleton({
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%)",
+            "linear-gradient(90deg, transparent 0%, rgb(var(--ink) / 0.05) 50%, transparent 100%)",
           animation: "skeleton-shimmer 1.4s ease-in-out infinite",
         }}
       />
@@ -330,9 +338,9 @@ export function Card({
 }) {
   const tintClass =
     tint === "red"
-      ? "bg-red-dim border-[#5A3230]"
+      ? "bg-red-dim border-status-red"
       : tint === "amber"
-        ? "bg-amber-dim/40 border-[#6B5228]"
+        ? "bg-amber-dim/40 border-status-amber"
         : "bg-panel border-line-soft";
   return (
     <div className={"rounded-lg border p-4 " + tintClass + " " + className}>{children}</div>
@@ -455,7 +463,7 @@ export function Button({
   const styles =
     variant === "ghost"
       ? "border border-line bg-transparent text-ink hover:bg-panel-alt"
-      : "bg-cyan text-[#0D2B30] hover:opacity-90";
+      : "bg-cyan text-button-ink hover:opacity-90";
   return (
     <button className={base + " " + styles + " " + className} {...rest}>
       {children}
@@ -475,10 +483,10 @@ export function Badge({
   tone?: StatusTone;
 }) {
   const map: Record<StatusTone, string> = {
-    green: "bg-green-dim text-green border-[#2F4E3C]",
-    amber: "bg-amber-dim text-amber border-[#6B5228]",
-    red: "bg-red-dim text-red border-[#5A3230]",
-    cyan: "bg-cyan-dim text-cyan border-[#2C4A50]",
+    green: "bg-green-dim text-green border-status-green",
+    amber: "bg-amber-dim text-amber border-status-amber",
+    red: "bg-red-dim text-red border-status-red",
+    cyan: "bg-cyan-dim text-cyan border-status-cyan",
     neutral: "bg-panel-alt text-ink-dim border-line",
   };
   return (
@@ -502,8 +510,8 @@ export function AlertBox({
 }) {
   const cls =
     tint === "red"
-      ? "border-[#5A3230] bg-red-dim text-red"
-      : "border-[#6B5228] bg-amber-dim/40 text-amber";
+      ? "border-status-red bg-red-dim text-red"
+      : "border-status-amber bg-amber-dim/40 text-amber";
   return (
     <div className={"flex gap-2.5 rounded-lg border p-3 text-[12.5px] " + cls}>
       <span className="font-mono font-semibold">!</span>
@@ -587,6 +595,9 @@ export function AuthShell({
 }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-base px-4 py-10">
+      <div className="fixed right-4 top-4 z-20">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-[400px]">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="text-[19px] font-semibold tracking-[0.5px]">
@@ -620,9 +631,9 @@ export function AuthMessage({
 }) {
   const cls =
     status === "error"
-      ? "border-[#5A3230] bg-red-dim text-red"
+      ? "border-status-red bg-red-dim text-red"
       : status === "success"
-        ? "border-[#2F4E3C] bg-green-dim text-green"
+        ? "border-status-green bg-green-dim text-green"
         : "border-line bg-panel-alt text-ink-dim";
   return (
     <div className={"mt-4 rounded-md border px-3 py-2.5 text-[12.5px] " + cls}>{message}</div>
@@ -642,7 +653,13 @@ export function HealthGauge({
 }) {
   const tone = statusFromHealth(value);
   const color =
-    tone === "green" ? "#4FAE7C" : tone === "amber" ? "#E8A33D" : tone === "red" ? "#E0574F" : "#5C6270";
+    tone === "green"
+      ? "rgb(var(--green))"
+      : tone === "amber"
+        ? "rgb(var(--amber))"
+        : tone === "red"
+          ? "rgb(var(--red))"
+          : "rgb(var(--ink-faint))";
   const stroke = 7;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
@@ -652,7 +669,7 @@ export function HealthGauge({
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#363C48" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(var(--line))" strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}
