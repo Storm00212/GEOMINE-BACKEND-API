@@ -120,12 +120,12 @@ export default function MachineChart({
               <XAxis
                 dataKey="time"
                 fontSize={11}
-                stroke="#5C6270"
+                stroke="#FFFFFF"
                 tickLine={false}
               />
               <YAxis
                 fontSize={11}
-                stroke="#5C6270"
+                stroke="#FFFFFF"
                 tickLine={false}
                 width={44}
                 label={{
@@ -133,12 +133,12 @@ export default function MachineChart({
                   angle: -90,
                   position: "insideLeft",
                   fontSize: 11,
-                  fill: "#8D95A3",
+                  fill: "#FFFFFF",
                 }}
               />
               <Tooltip
                 contentStyle={{ background: "#21252D", border: "1px solid #363C48", borderRadius: 8, color: "#EDEFF3" }}
-                labelStyle={{ color: "#8D95A3" }}
+                labelStyle={{ color: "#FFFFFF" }}
                 itemStyle={{ color: "#4FC3D9" }}
                 formatter={(v: any) => [`${v} ${selectedParam?.unit ?? ""}`, selectedParam?.label ?? "value"]}
                 labelFormatter={(l) => chartData.find((d) => d.time === l)?.full ?? l}
