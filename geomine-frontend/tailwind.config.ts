@@ -12,7 +12,7 @@ const config: Config = {
         side: "#14161B",
         panel: { DEFAULT: "#21252D", alt: "#282D37" },
         line: { DEFAULT: "#363C48", soft: "#2C313C" },
-        ink: { DEFAULT: "#EDEFF3", dim: "#8D95A3", faint: "#5C6270" },
+        ink: { DEFAULT: "#EDEFF3", dim: "#FFFFFF", faint: "#FFFFFF" },
         amber: { DEFAULT: "#E8A33D", dim: "#4A3B22" },
         green: { DEFAULT: "#4FAE7C", dim: "#22392E" },
         red: { DEFAULT: "#E0574F", dim: "#402323" },
