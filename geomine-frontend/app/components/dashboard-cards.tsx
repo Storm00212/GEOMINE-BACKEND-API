@@ -57,7 +57,7 @@ export function RecommendationBanner({
       <div
         className={
           "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[12px] font-bold " +
-          (isCritical ? "bg-red text-[#0D2B30]" : "bg-amber text-[#0D2B30]")
+          (isCritical ? "bg-red text-button-ink" : "bg-amber text-button-ink")
         }
         aria-hidden
       >
