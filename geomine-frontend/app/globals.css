@@ -9,8 +9,8 @@
   --border: #363c48;
   --border-soft: #2c313c;
   --text: #edeff3;
-  --text-dim: #8d95a3;
-  --text-faint: #5c6270;
+  --text-dim: #ffffff;
+  --text-faint: #ffffff;
   --amber: #e8a33d;
   --green: #4fae7c;
   --red: #e0574f;
@@ -82,7 +82,7 @@ body {
   stroke: #2c313c;
 }
 .recharts-text {
-  fill: #8d95a3;
+  fill: #ffffff;
 }
 .recharts-tooltip-wrapper:focus {
   outline: none;
@@ -97,7 +97,7 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 .gm-chart-tooltip .gm-tt-label {
-  color: #8d95a3;
+  color: #ffffff;
   font-family: "IBM Plex Mono", monospace;
   font-size: 10.5px;
   text-transform: uppercase;
