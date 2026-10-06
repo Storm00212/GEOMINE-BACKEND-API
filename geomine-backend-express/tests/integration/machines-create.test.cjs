@@ -8,12 +8,12 @@ process.env.JWT_SECRET = process.env.JWT_SECRET || "test-jwt-secret";
 const { createApp } = require("../../dist/server.js");
 const { prisma } = require("../../dist/config.js");
 
-const makeRequest = (app, method, path, body, token) => new Promise((resolve, reject) => {
+const makeRequest = (port, method, path, body, token) => new Promise((resolve, reject) => {
   const payload = body ? JSON.stringify(body) : null;
   const req = http.request(
     {
       hostname: "127.0.0.1",
-      port: 0,
+      port,
       path,
       method,
       headers: {
@@ -72,9 +72,9 @@ test("POST /api/machines allows admin users to create a generator", async () => 
 
   try {
     const response = await makeRequest(
-      app,
+      port,
       "POST",
-      `/api/machines`,
+      "/api/machines",
       { name: "Generator 7", location: "North Plant", phaseType: "three_phase" },
       token
     );
@@ -105,9 +105,9 @@ test("POST /api/machines rejects non-admin users", async () => {
 
   try {
     const response = await makeRequest(
-      app,
+      port,
       "POST",
-      `/api/machines`,
+      "/api/machines",
       { name: "Blocked Generator" },
       token
     );
