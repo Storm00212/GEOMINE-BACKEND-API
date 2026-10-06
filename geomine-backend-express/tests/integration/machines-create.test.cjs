@@ -1,5 +1,5 @@
 const assert = require("node:assert/strict");
-const { test, beforeEach, afterEach } = require("node:test");
+const { test } = require("node:test");
 const http = require("node:http");
 const jwt = require("jsonwebtoken");
 
@@ -56,68 +56,62 @@ const setAdminStub = () => {
   });
 };
 
-beforeEach(() => {
-  setAdminStub();
-});
-
-afterEach(() => {
-  setAdminStub();
-});
-
-test("POST /api/machines allows admin users to create a generator", { concurrency: false }, async () => {
-  const app = createApp();
-  const server = app.listen(0, "127.0.0.1");
-  const { port } = server.address();
-
-  const token = jwt.sign({ sub: "11111111-1111-1111-1111-111111111111", role: "admin" }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
-
-  try {
-    const response = await makeRequest(
-      port,
-      "POST",
-      "/api/machines",
-      { name: "Generator 7", location: "North Plant", phaseType: "three_phase" },
-      token
-    );
-
-    assert.equal(response.statusCode, 200);
-    assert.equal(response.body.machine.name, "Generator 7");
-    assert.equal(response.body.machine.location, "North Plant");
-    assert.equal(response.body.machine.phase_type, "three_phase");
-  } finally {
-    await new Promise((resolve) => server.close(resolve));
-  }
-});
-
-test("POST /api/machines rejects non-admin users", { concurrency: false }, async () => {
-  const app = createApp();
-  const server = app.listen(0, "127.0.0.1");
-  const { port } = server.address();
-
-  const token = jwt.sign({ sub: "22222222-2222-2222-2222-222222222222", role: "miner" }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
-
+const setMinerStub = () => {
   prisma.profiles.findUnique = async () => ({
     id: "22222222-2222-2222-2222-222222222222",
     full_name: "Field User",
     role: "miner",
   });
+};
+
+test("POST /api/machines authorizes admins and rejects non-admins", async () => {
+  setAdminStub();
+
+  const adminApp = createApp();
+  const adminServer = adminApp.listen(0, "127.0.0.1");
+  const adminPort = adminServer.address().port;
+  const adminToken = jwt.sign({ sub: "11111111-1111-1111-1111-111111111111", role: "admin" }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
 
   try {
-    const response = await makeRequest(
-      port,
+    const adminResponse = await makeRequest(
+      adminPort,
+      "POST",
+      "/api/machines",
+      { name: "Generator 7", location: "North Plant", phaseType: "three_phase" },
+      adminToken
+    );
+
+    assert.equal(adminResponse.statusCode, 200);
+    assert.equal(adminResponse.body.machine.name, "Generator 7");
+    assert.equal(adminResponse.body.machine.location, "North Plant");
+    assert.equal(adminResponse.body.machine.phase_type, "three_phase");
+  } finally {
+    await new Promise((resolve) => adminServer.close(resolve));
+  }
+
+  setMinerStub();
+
+  const minerApp = createApp();
+  const minerServer = minerApp.listen(0, "127.0.0.1");
+  const minerPort = minerServer.address().port;
+  const minerToken = jwt.sign({ sub: "22222222-2222-2222-2222-222222222222", role: "miner" }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+
+  try {
+    const minerResponse = await makeRequest(
+      minerPort,
       "POST",
       "/api/machines",
       { name: "Blocked Generator" },
-      token
+      minerToken
     );
 
-    assert.equal(response.statusCode, 403);
-    assert.equal(response.body.error, "Not permitted");
+    assert.equal(minerResponse.statusCode, 403);
+    assert.equal(minerResponse.body.error, "Not permitted");
   } finally {
-    await new Promise((resolve) => server.close(resolve));
+    await new Promise((resolve) => minerServer.close(resolve));
   }
 });
