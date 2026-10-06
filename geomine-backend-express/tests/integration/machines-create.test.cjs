@@ -41,7 +41,7 @@ const makeRequest = (port, method, path, body, token) => new Promise((resolve, r
   req.end();
 });
 
-beforeEach(() => {
+const setAdminStub = () => {
   prisma.profiles.findUnique = async () => ({
     id: "11111111-1111-1111-1111-111111111111",
     full_name: "Admin User",
@@ -54,14 +54,17 @@ beforeEach(() => {
     created_at: new Date("2025-01-01T00:00:00.000Z"),
     updated_at: new Date("2025-01-01T00:00:00.000Z"),
   });
+};
+
+beforeEach(() => {
+  setAdminStub();
 });
 
 afterEach(() => {
-  delete prisma.profiles.findUnique;
-  delete prisma.machines.create;
+  setAdminStub();
 });
 
-test("POST /api/machines allows admin users to create a generator", async () => {
+test("POST /api/machines allows admin users to create a generator", { concurrency: false }, async () => {
   const app = createApp();
   const server = app.listen(0, "127.0.0.1");
   const { port } = server.address();
@@ -88,7 +91,7 @@ test("POST /api/machines allows admin users to create a generator", async () => 
   }
 });
 
-test("POST /api/machines rejects non-admin users", async () => {
+test("POST /api/machines rejects non-admin users", { concurrency: false }, async () => {
   const app = createApp();
   const server = app.listen(0, "127.0.0.1");
   const { port } = server.address();
