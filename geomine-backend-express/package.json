@@ -9,6 +9,7 @@
     "dev": "nodemon",
     "build": "tsc",
     "test:unit": "npm run build && node --test \"tests/unit/*.test.cjs\"",
+    "test:integration": "npm run build && node --test \"tests/integration/*.test.cjs\"",
     "start": "node dist/server.js",
     "postinstall": "prisma generate",
     "prisma:pull": "prisma db pull",
