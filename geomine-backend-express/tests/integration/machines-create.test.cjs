@@ -8,6 +8,11 @@ process.env.JWT_SECRET = process.env.JWT_SECRET || "test-jwt-secret";
 const { createApp } = require("../../dist/server.js");
 const { prisma } = require("../../dist/config.js");
 
+const listenOnEphemeralPort = (app) => new Promise((resolve, reject) => {
+  const server = app.listen(0, "127.0.0.1", () => resolve(server));
+  server.on("error", reject);
+});
+
 const makeRequest = (port, method, path, body, token) => new Promise((resolve, reject) => {
   const payload = body ? JSON.stringify(body) : null;
   const req = http.request(
@@ -68,7 +73,7 @@ test("POST /api/machines authorizes admins and rejects non-admins", async () => 
   setAdminStub();
 
   const adminApp = createApp();
-  const adminServer = adminApp.listen(0, "127.0.0.1");
+  const adminServer = await listenOnEphemeralPort(adminApp);
   const adminPort = adminServer.address().port;
   const adminToken = jwt.sign({ sub: "11111111-1111-1111-1111-111111111111", role: "admin" }, process.env.JWT_SECRET, {
     expiresIn: "7d",
@@ -94,7 +99,7 @@ test("POST /api/machines authorizes admins and rejects non-admins", async () => 
   setMinerStub();
 
   const minerApp = createApp();
-  const minerServer = minerApp.listen(0, "127.0.0.1");
+  const minerServer = await listenOnEphemeralPort(minerApp);
   const minerPort = minerServer.address().port;
   const minerToken = jwt.sign({ sub: "22222222-2222-2222-2222-222222222222", role: "miner" }, process.env.JWT_SECRET, {
     expiresIn: "7d",
