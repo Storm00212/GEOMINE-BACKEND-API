@@ -18,10 +18,17 @@ interface MachinesData {
   fleetSnapshot: GeneratorHealthSnapshot[];
 }
 
+interface CurrentUserData {
+  profile: { role: string } | null;
+}
+
 export default function MachinesPage() {
   const { data, loading } = useBackendData<MachinesData>("/api/dashboard", {
     machines: [],
     fleetSnapshot: [],
+  });
+  const { data: currentUser } = useBackendData<CurrentUserData>("/api/auth/me", {
+    profile: null,
   });
   const { machines, fleetSnapshot } = data;
 
@@ -43,11 +50,24 @@ export default function MachinesPage() {
 
   return (
     <AppShell active="machines">
-      <h1 className="text-[19px] font-semibold">Generators</h1>
-      <p className="mb-6 mt-1 text-[13px] text-ink-dim">
-        {machines.length} unit{machines.length === 1 ? "" : "s"} in the fleet Â· sorted by
-        maintenance priority.
-      </p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-[19px] font-semibold">Generators</h1>
+          <p className="mt-1 text-[13px] text-ink-dim">
+            {machines.length} unit{machines.length === 1 ? "" : "s"} in the fleet Â· sorted by
+            maintenance priority.
+          </p>
+        </div>
+        {currentUser.profile?.role === "admin" && (
+          <Link
+            href="/machines/new"
+            className="inline-flex items-center gap-2 rounded-md bg-cyan px-3.5 py-2 text-[12.5px] font-semibold text-button-ink transition hover:opacity-90"
+          >
+            <span aria-hidden="true" className="text-base leading-none">+</span>
+            Add generator
+          </Link>
+        )}
+      </div>
 
       <DividerLabel>Fleet</DividerLabel>
       <Card>
