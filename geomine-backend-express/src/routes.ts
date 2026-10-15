@@ -8,6 +8,7 @@ export const router = Router();
 router.post("/auth/login", c.loginController);
 router.post("/auth/signup", c.signupController);
 router.get("/auth/me", requireAuth, c.meController);
+router.post("/help/chat", requireAuth, c.helpChatController);
 
 // MACHINES
 // NOTE: the old Next.js backend has no auth check here at all, fixed to require an authenticated user.
