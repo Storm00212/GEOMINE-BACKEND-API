@@ -13,6 +13,7 @@ test("provides bilingual local help and validates question length", async () => 
     const englishRoles = await askHelpAssistant("Explain the admin and miner roles", "en", "/");
     const swahiliRoles = await askHelpAssistant("Eleza majukumu ya msimamizi na mchimbaji", "sw", "/");
     const websiteOverview = await askHelpAssistant("What is this website for?", "en", "/");
+    const swahiliOverview = await askHelpAssistant("Tovuti hii ina kazi gani?", "sw", "/");
 
     assert.match(englishReply, /log a reading/i);
     assert.match(swahiliReply, /Kurekodi kipimo/);
@@ -25,6 +26,8 @@ test("provides bilingual local help and validates question length", async () => 
     assert.match(swahiliRoles, /watumiaji/i);
     assert.match(websiteOverview, /predictive[- ]maintenance/i);
     assert.match(websiteOverview, /reports/i);
+    assert.match(swahiliOverview, /tovuti/i);
+    assert.match(swahiliOverview, /ripoti/i);
     await assert.rejects(askHelpAssistant(" ", "en", "/"), ValidationError);
     await assert.rejects(askHelpAssistant("x".repeat(1001), "en", "/"), ValidationError);
   } finally {
