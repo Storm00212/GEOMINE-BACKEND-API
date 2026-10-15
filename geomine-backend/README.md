@@ -55,7 +55,7 @@ every service needs its own dedicated controller, and a composite
 controller depending on several services is expected.
 
 Modules: `auth`, `machines`, `parameters`, `readings`, `metrics`, `refuel`,
-`faults`, `reports`, `admin`.
+`faults`, `reports`, `admin`, `help`.
 
 ## Auth model: Bearer tokens, not cookies
 This is the one deliberate change from the single-app version. A cookie is
@@ -102,6 +102,11 @@ Copy `.env.local.example` to `.env.local`:
 - `JWT_SECRET` — secret used to sign/verify access tokens. **Only this
   backend ever sees this** — the frontend never does.
 - `ALLOWED_ORIGINS` — see CORS section above.
+- `GROQ_API_KEY` — optional Groq API key for AI help responses. Set this only
+  in the backend deployment's secret/environment settings, never in the
+  frontend. Without it, the help endpoint returns built-in bilingual guidance.
+- `GROQ_MODEL` — optional model override; defaults to
+  `llama-3.3-70b-versatile`.
 
 ### 3. Bootstrap your first admin
 Since invites can only be sent by an existing admin:
@@ -131,6 +136,7 @@ npm run dev    # runs on :4000
 | Method | Path | Role | Notes |
 |---|---|---|---|
 | GET | `/api/auth/me` | any | who am I, what's my role |
+| POST | `/api/help/chat` | any authenticated user | English/Kiswahili help; Groq is optional |
 | GET | `/api/machines` | any | `?active_only=true` |
 | POST | `/api/machines` | admin | create a machine |
 | GET | `/api/parameters` | any | `?machine_type=generator&active_only=true` |
