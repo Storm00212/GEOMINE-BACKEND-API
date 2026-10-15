@@ -64,7 +64,7 @@ export default function Home() {
                     </button>
                     <button
                       className="btn-secondary"
-                      onClick={() => router.push(token ? "/entry" : "/login")}
+                      onClick={() => router.push(token ? "/entry" : "/login?mode=signup")}
                     >
                       {token ? "Log a reading" : "Create an account"}
                     </button>
@@ -88,7 +88,7 @@ export default function Home() {
                       <QuickLink
                         title="Create an account"
                         subtitle="Register for Miner access"
-                        onClick={() => router.push("/login")}
+                        onClick={() => router.push("/login?mode=signup")}
                       />
                       <QuickLink
                         title="Fleet overview"
