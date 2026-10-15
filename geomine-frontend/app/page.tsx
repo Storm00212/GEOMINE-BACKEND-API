@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAccessToken } from "@/lib/auth/token-storage";
-import { StatCard, Badge } from "@/app/components/geomine-theme";
+import { StatCard } from "@/app/components/geomine-theme";
 import { ThemeToggle } from "@/app/components/theme-provider";
 
 export default function Home() {
@@ -45,8 +45,8 @@ export default function Home() {
                     GEOMINE · PMS
                   </h1>
                   <p className="mt-3 max-w-xl text-[13px] leading-relaxed text-ink-dim md:text-base">
-                    Log generator readings, get out-of-range alerts, and export maintenance
-                    reports — backed by Neon/PostgreSQL for stable, observable performance.
+                    Track generator readings, monitor fleet health, and prepare maintenance
+                    reports for your team.
                   </p>
 
                   <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -70,43 +70,31 @@ export default function Home() {
                     </button>
                   </div>
 
-                  <div className="mt-6 text-[12px] leading-relaxed text-ink-faint">
-                    No UI errors means backend endpoints are wired. If you still see a blank
-                    screen, verify you're rendering this root route at{" "}
-                    <span className="font-mono text-ink-dim">/</span>.
-                  </div>
                 </div>
 
                 <div className="w-full md:w-[340px]">
                   <div className="rounded-xl border border-line-soft bg-panel-alt p-5">
-                    <div className="text-[14px] font-semibold text-ink">Quick actions</div>
-                    <div className="mt-2 text-[12px] text-ink-faint">Roles: miner / it / admin</div>
+                    <div className="text-[14px] font-semibold text-ink">Account access</div>
+                    <div className="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                      Sign in with the work email and password registered for your account.
+                    </div>
 
                     <div className="mt-5 space-y-3">
                       <QuickLink
                         title="Login"
-                        subtitle="Access your role dashboard"
+                        subtitle="Use your registered email and password"
                         onClick={() => router.push("/login")}
                       />
                       <QuickLink
-                        title="Signup"
-                        subtitle="Create an account with a role"
+                        title="Create an account"
+                        subtitle="Register for Miner access"
                         onClick={() => router.push("/login")}
                       />
                       <QuickLink
                         title="Fleet overview"
-                        subtitle="See generator health"
+                        subtitle="For IT and Admin accounts"
                         onClick={() => router.push(token ? "/dashboard" : "/login")}
                       />
-                    </div>
-
-                    <div className="mt-5 rounded-lg border border-line-soft bg-base/40 p-4">
-                      <div className="font-mono text-[10px] tracking-[0.2em] text-ink-faint">TIP</div>
-                      <div className="mt-2 text-[12px] leading-relaxed text-ink-dim">
-                        Login returns a JWT access token stored in localStorage. The UI shows
-                        only when authenticated (see{" "}
-                        <span className="font-mono text-ink">geomine_access_token</span>).
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -115,22 +103,19 @@ export default function Home() {
               {!loading && (
                 <div className="relative mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="rounded-xl border border-line-soft bg-panel-alt p-5">
-                    <div className="font-mono text-[10px] tracking-[0.2em] text-ink-faint">NEXT</div>
-                    <div className="mt-2 text-[14px] font-semibold text-ink">If you want dashboards</div>
-                    <div className="mt-1 text-[12px] text-ink-dim">
-                      Implemented: /entry, /dashboard, /machines/[id], /reports with graphs.
+                    <div className="font-mono text-[10px] tracking-[0.2em] text-ink-faint">MINER</div>
+                    <div className="mt-2 text-[14px] font-semibold text-ink">Create a Miner account</div>
+                    <div className="mt-1 text-[12px] leading-relaxed text-ink-dim">
+                      Choose Create an account, enter your work email, create a password of at least
+                      8 characters, and confirm it. New self-registrations are assigned Miner access.
                     </div>
                   </div>
                   <div className="rounded-xl border border-line-soft bg-panel-alt p-5">
-                    <div className="font-mono text-[10px] tracking-[0.2em] text-ink-faint">AUTH</div>
-                    <div className="mt-2 flex items-center gap-2 text-[14px] font-semibold text-ink">
-                      {token ? "You're authenticated" : "You're not signed in"}
-                      <Badge tone={token ? "green" : "neutral"}>{token ? "LIVE" : "GUEST"}</Badge>
-                    </div>
-                    <div className="mt-1 text-[12px] text-ink-dim">
-                      {token
-                        ? "Use the sidebar Log out button when testing UI flows."
-                        : "Use /login to sign in and reveal authenticated UI."}
+                    <div className="font-mono text-[10px] tracking-[0.2em] text-ink-faint">IT / ADMIN</div>
+                    <div className="mt-2 text-[14px] font-semibold text-ink">Request role-based access</div>
+                    <div className="mt-1 text-[12px] leading-relaxed text-ink-dim">
+                      IT and Admin roles are assigned by an administrator, not selected during sign-up.
+                      Ask your administrator for an invitation, then sign in with the assigned email and password.
                     </div>
                   </div>
                 </div>
