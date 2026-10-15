@@ -185,7 +185,7 @@ export default function DashboardPage() {
           </Link>
         </div>
       </div>
-      <p className="mb-5 mt-1 text-[13px] text-ink-dim">
+      <div className="mb-5 mt-1 text-[13px] text-ink-dim">
         {loading ? (
           <Skeleton className="inline-block h-3 w-64 align-middle" />
         ) : (
@@ -196,7 +196,7 @@ export default function DashboardPage() {
             {loading ? "" : <> · last {range} days</>}
           </>
         )}
-      </p>
+      </div>
 
       {/* C1: Recommendation banner */}
       <RecommendationBanner
