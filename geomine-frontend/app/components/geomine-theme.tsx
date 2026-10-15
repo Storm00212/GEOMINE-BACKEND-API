@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { clearAccessToken } from "@/lib/auth/token-storage";
+import { HelpAssistant } from "./help-assistant";
 import { ThemeToggle } from "./theme-provider";
 import {
   StatusTone,
@@ -98,6 +99,7 @@ export function AppShell({
       <main className="min-h-screen px-4 pb-16 pt-20 md:ml-[220px] md:max-w-[900px] md:px-10 md:py-8 md:pb-10">
         {children}
       </main>
+      <HelpAssistant />
     </div>
   );
 }
