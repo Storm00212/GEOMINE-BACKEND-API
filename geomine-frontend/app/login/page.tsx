@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useId } from "react";
+import { useEffect, useState, useId } from "react";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/auth/api";
 import { setAccessToken } from "@/lib/auth/token-storage";
@@ -59,6 +59,12 @@ export default function LoginPage() {
   const emailId = useId();
   const passwordId = useId();
   const confirmId = useId();
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("mode") === "signup") {
+      setMode("signup");
+    }
+  }, []);
 
   function set<K extends keyof AuthFormState>(key: K, value: AuthFormState[K]) {
     setState((s) => ({ ...s, [key]: value }));
