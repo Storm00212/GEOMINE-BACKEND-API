@@ -25,6 +25,7 @@ src/
                          join that needs a flat (non-nested) result shape
   services.ts            all business logic + validation
   controllers.ts         all Express request handlers
+  help-assistant.ts     bilingual local help and optional Groq chat completion
   routes.ts               route wiring (method + path + middleware + controller)
   server.ts               entry point
 ```
@@ -57,6 +58,18 @@ npm run dev             # nodemon, :4000
 `postinstall` runs `prisma generate` automatically. If the DB schema
 changes, re-run `npm run prisma:pull` to re-introspect.
 
+## In-app help assistant
+
+The authenticated frontend includes an English/Kiswahili interactive walkthrough
+and help chat. The walkthrough links users through the dashboard, generators,
+reading entry and history, reports, and administrator generator creation. Chat
+works with built-in workflow guidance if Groq is not configured.
+
+To enable Groq responses, set `GROQ_API_KEY` in this backend's `.env` file.
+The key is only used by the Express service and must not be added to frontend
+environment variables or committed. `GROQ_MODEL` optionally selects the model;
+it defaults to `llama-3.3-70b-versatile`.
+
 ## Unit tests
 
 Run the backend build and unit suite with:
@@ -66,6 +79,6 @@ npm run test:unit
 ```
 
 Unit tests live in `tests/unit/` and use Node's built-in test runner. They
-should exercise isolated logic without starting Express or connecting to
-Postgres. Integration and end-to-end tests will use separate test categories
-and commands when those suites are added.
+exercise isolated logic without starting Express or connecting to Postgres.
+The generator-creation API integration test lives in `tests/integration/` and
+runs with `npm run test:integration`.
