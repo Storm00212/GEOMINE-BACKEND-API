@@ -1,8 +1,20 @@
 import type { Request, Response } from "express";
+import { askHelpAssistant } from "./help-assistant";
 import { handleApiError } from "./middleware";
 import * as services from "./services";
 
 // AUTH
+
+// Answers a user's in-app help question.
+// POST /api/help/chat
+export async function helpChatController(req: Request, res: Response): Promise<void> {
+  try {
+    const reply = await askHelpAssistant(req.body?.message, req.body?.language, req.body?.pathname);
+    res.json({ reply });
+  } catch (error) {
+    handleApiError(error, res);
+  }
+}
 
 // Verifies credentials and returns a signed access token.
 // POST /api/auth/login
