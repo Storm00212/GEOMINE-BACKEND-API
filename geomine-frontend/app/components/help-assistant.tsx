@@ -81,8 +81,8 @@ const copy = {
       },
       {
         title: "Delete a reading (admin only)",
-        detail: "From Reading history, administrators can click Delete on any reading and confirm. The backend enforces admin-only access and deletes the reading row. Miners cannot delete readings.",
-        href: "/entry/history",
+        detail: "From Reading history, administrators can click Delete on any reading and confirm. You can also open a generator from the Generators list, scroll to Readings for this generator, and click Delete on an inaccurate reading for that specific generator. The backend enforces admin-only access and deletes the reading row. Miners cannot delete readings.",
+        href: "/machines",
       },
       {
         title: "Reports — export readings to CSV",
@@ -183,8 +183,8 @@ const copy = {
       },
       {
         title: "Futa kipimo (wasimamizi pekee)",
-        detail: "Kwenye Historia ya vipimo, wasimamizi wanaweza bonyeza Delete kwenye kipimo yoyote na usabuni. Nyakati inategemea usimamizi pekee na kuondoa sehemu ya kipimo. Wachimbaji hawiwezi kuondoa kipimo.",
-        href: "/entry/history",
+        detail: "Kwenye Historia ya vipimo, wasimamizi wanaweza bonyeza Delete kwenye kipimo yoyote na usabuni. Pia unaweza kufungua jenereta kutoka orodha ya Jenereta, kuangalia sehemu ya Readings for this generator, na bonyeza Delete kwenye kipimo si sahihi cha jenereta hicho. Nyakati inategemea usimamizi pekee na kuondoa sehemu ya kipimo. Wachimbaji hawiwezi kuondoa kipimo.",
+        href: "/machines",
       },
       {
         title: "Ripoti — download vipimo kama CSV",

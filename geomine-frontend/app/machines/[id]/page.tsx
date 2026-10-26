@@ -1,6 +1,7 @@
 "use client";
 
 import { useBackendData } from "@/lib/use-backend-data";
+import { backendFetchClient } from "@/lib/backend-client-browser";
 import type { Machine, ParameterDefinition, FaultEvent } from "@/types/database";
 import type {
   GeneratorHealthSnapshot,
@@ -17,6 +18,8 @@ import {
   DividerLabel,
   AlertBox,
   HealthGauge,
+  ListRow,
+  Badge,
 } from "@/app/components/geomine-theme";
 import { statusFromHealth } from "@/app/components/theme-utils";
 import MachineChart from "./machine-chart";
@@ -38,7 +41,7 @@ interface MachineDetail {
 }
 
 export default function MachinePage({ params }: { params: { id: string } }) {
-  const { data, loading } = useBackendData<MachineDetail>(`/api/machines/${params.id}/detail`, {
+  const { data, loading, refetch } = useBackendData<MachineDetail>(`/api/machines/${params.id}/detail`, {
     machine: null,
     readings: [],
     parameters: [],
@@ -64,6 +67,16 @@ export default function MachinePage({ params }: { params: { id: string } }) {
     recommendation,
     openFaults,
   } = data;
+  const { data: currentUser } = useBackendData<{ profile: { role: string } | null }>("/api/auth/me", {
+    profile: null,
+  });
+  const isAdmin = currentUser?.profile?.role === "admin";
+
+  async function handleDeleteReading(id: string) {
+    if (!window.confirm("Delete this reading?")) return;
+    await backendFetchClient(`/api/readings/${id}`, { method: "DELETE" });
+    refetch();
+  }
 
   if (loading) {
     return (
@@ -136,6 +149,46 @@ export default function MachinePage({ params }: { params: { id: string } }) {
 
       <DividerLabel>Parameter history</DividerLabel>
       <MachineChart readings={readings} parameters={parameters} />
+
+      <DividerLabel>Readings for this generator</DividerLabel>
+      <Card>
+        {readings.length === 0 ? (
+          <p className="px-2 py-6 text-[13px] text-ink-faint">No readings logged for this generator yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {readings
+              .slice()
+              .sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime())
+              .map((r: any) => (
+                <ListRow key={r.id}>
+                  <span className="min-w-0 flex items-center gap-2">
+                    <span className="font-medium text-ink">{r.parameter_definitions?.label ?? r.parameter_id}</span>
+                    <span className="font-mono">
+                      {r.value} {r.parameter_definitions?.unit ?? ""}
+                    </span>
+                    <span className="ml-2 font-mono text-[11px] text-ink-faint">
+                      {new Date(r.recorded_at).toLocaleString()}
+                    </span>
+                  </span>
+                  {r.flagged && <Badge tone="red">OUT OF RANGE</Badge>}
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDeleteReading(r.id);
+                      }}
+                      className="rounded-md border border-line bg-red-dim px-2 py-1 text-[11px] font-semibold text-red hover:bg-red/10 transition"
+                      aria-label="Delete reading"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </ListRow>
+              ))}
+          </div>
+        )}
+      </Card>
     </AppShell>
   );
 }
