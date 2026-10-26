@@ -527,18 +527,37 @@ export function AlertBox({
 /* ------------------------------------------------------------------ */
 
 export function FleetRow({
+  id,
   href,
   name,
   sub,
   status,
   metrics,
+  canDelete,
+  onDelete,
 }: {
+  id?: string;
   href: string;
   name: string;
   sub?: string;
   status: StatusTone;
   metrics: { label: string; value: string | number; tone?: StatusTone }[];
+  canDelete?: boolean;
+  onDelete?: (id: string) => Promise<void>;
 }) {
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!window.confirm("Delete this generator?")) return;
+    if (!onDelete || !id) return;
+    setDeleting(true);
+    try {
+      await onDelete(id);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <Link
       href={href}
@@ -562,6 +581,20 @@ export function FleetRow({
             </div>
           </div>
         ))}
+        {canDelete && onDelete && id && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              handleDelete();
+            }}
+            disabled={deleting}
+            className="rounded-md border border-line bg-red-dim px-2 py-1.5 text-[11px] font-semibold text-red hover:bg-red/10 transition disabled:opacity-50"
+            aria-label={`Delete ${name}`}
+          >
+            {deleting ? "Deleting…" : "Delete"}
+          </button>
+        )}
       </div>
     </Link>
   );

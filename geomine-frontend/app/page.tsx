@@ -112,10 +112,10 @@ export default function Home() {
                   </div>
                   <div className="rounded-xl border border-line-soft bg-panel-alt p-5">
                     <div className="font-mono text-[10px] tracking-[0.2em] text-ink-faint">IT / ADMIN</div>
-                    <div className="mt-2 text-[14px] font-semibold text-ink">Request role-based access</div>
+                    <div className="mt-2 text-[14px] font-semibold text-ink">Create an Admin account</div>
                     <div className="mt-1 text-[12px] leading-relaxed text-ink-dim">
-                      IT and Admin roles are assigned by an administrator, not selected during sign-up.
-                      Ask your administrator for an invitation, then sign in with the assigned email and password.
+                      Choose Create an account and select Admin as your role during sign-up. New
+                      self-registrations can register as Miner or Admin.
                     </div>
                   </div>
                 </div>

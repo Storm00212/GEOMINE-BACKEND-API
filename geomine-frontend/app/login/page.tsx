@@ -20,6 +20,7 @@ interface AuthFormState {
   password: string;
   confirmPassword: string;
   showPassword: boolean;
+  role: "miner" | "admin";
   emailError: string | null;
   passwordError: string | null;
   formError: string | null;
@@ -31,6 +32,7 @@ const initialState: AuthFormState = {
   password: "",
   confirmPassword: "",
   showPassword: false,
+  role: "miner",
   emailError: null,
   passwordError: null,
   formError: null,
@@ -107,7 +109,11 @@ export default function LoginPage() {
     try {
       const endpoint = isSignup ? "/api/auth/signup" : "/api/auth/login";
       const body: Record<string, unknown> = isSignup
-        ? { email: state.email.trim().toLowerCase(), password: state.password, role: "miner" }
+        ? {
+            email: state.email.trim().toLowerCase(),
+            password: state.password,
+            role: state.role,
+          }
         : { email: state.email.trim().toLowerCase(), password: state.password };
       const data = await apiPost<{ accessToken: string }>(endpoint, body);
       setAccessToken(data.accessToken);
@@ -205,6 +211,20 @@ export default function LoginPage() {
               onChange={(e) => set("confirmPassword", e.target.value)}
               placeholder="••••••••"
             />
+          </Field>
+        )}
+
+        {isSignup && (
+          <Field label="Account role" htmlFor="role">
+            <select
+              id="role"
+              value={state.role}
+              onChange={(e) => set("role", (e.target.value as "miner" | "admin"))}
+              className="w-full rounded-md border border-line bg-base px-3 py-2 text-[13px] font-medium text-ink focus:outline-none focus:ring-1 focus:ring-cyan"
+            >
+              <option value="miner">Miner — log readings and submit events</option>
+              <option value="admin">Admin — full fleet and user management</option>
+            </select>
           </Field>
         )}
 

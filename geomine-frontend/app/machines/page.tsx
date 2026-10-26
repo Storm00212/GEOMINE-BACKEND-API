@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useBackendData } from "@/lib/use-backend-data";
+import { backendFetchClient } from "@/lib/backend-client-browser";
 import type { Machine } from "@/types/database";
 import type { GeneratorHealthSnapshot } from "@/types/metrics";
 import Link from "next/link";
@@ -23,7 +24,7 @@ interface CurrentUserData {
 }
 
 export default function MachinesPage() {
-  const { data, loading } = useBackendData<MachinesData>("/api/dashboard", {
+  const { data, loading, refetch } = useBackendData<MachinesData>("/api/dashboard", {
     machines: [],
     fleetSnapshot: [],
   });
@@ -31,6 +32,7 @@ export default function MachinesPage() {
     profile: null,
   });
   const { machines, fleetSnapshot } = data;
+  const isAdmin = currentUser.profile?.role === "admin";
 
   if (loading) {
     return (
@@ -48,6 +50,11 @@ export default function MachinesPage() {
     return pb - pa;
   });
 
+  async function handleDeleteMachine(id: string) {
+    await backendFetchClient(`/api/machines/${id}`, { method: "DELETE" });
+    refetch();
+  }
+
   return (
     <AppShell active="machines">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
@@ -58,7 +65,7 @@ export default function MachinesPage() {
             maintenance priority.
           </p>
         </div>
-        {currentUser.profile?.role === "admin" && (
+        {isAdmin && (
           <Link
             href="/machines/new"
             className="inline-flex items-center gap-2 rounded-md bg-cyan px-3.5 py-2 text-[12.5px] font-semibold text-button-ink transition hover:opacity-90"
@@ -77,6 +84,7 @@ export default function MachinesPage() {
           return (
             <FleetRow
               key={m.id}
+              id={m.id}
               href={`/machines/${m.id}`}
               name={m.name}
               sub={`${m.location ?? "Site"} Â· ${m.status}`}
@@ -90,6 +98,8 @@ export default function MachinesPage() {
                 },
                 { label: "PRIORITY", value: snap?.maintenance_priority_score ?? "â€”" },
               ]}
+              canDelete={isAdmin}
+              onDelete={handleDeleteMachine}
             />
           );
         })}
