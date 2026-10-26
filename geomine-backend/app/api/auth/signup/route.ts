@@ -21,13 +21,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Public self-signup is locked to the `miner` role. Higher-privilege
-    // roles (it, admin) are created via POST /api/admin/invite, which
-    // issues a temporary password the admin relays to the new user. We
-    // silently coerce any non-miner role to miner here so a tampered
-    // client can't escalate; the response status is still 200, but the
-    // resulting account has miner-only permissions.
-    const resolvedRole = "miner";
+    // Public self-signup allows Miner or Admin role selection. The `it`
+    // role is excluded from public signup and must be created via invite.
+    // Server-side validation coerces anything outside the allowed set to
+    // "miner" so a tampered client cannot escalate privileges.
+    const ALLOWED_SIGNUP_ROLES = new Set(["miner", "admin"]);
+    const resolvedRole: "miner" | "admin" =
+      typeof role === "string" && ALLOWED_SIGNUP_ROLES.has(role)
+        ? (role as "miner" | "admin")
+        : "miner";
 
     const existing = await query<{ id: string }>(
       `select id from app_users where email = $1 limit 1`,

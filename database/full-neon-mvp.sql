@@ -161,6 +161,55 @@ create trigger trg_flag_reading
   before insert or update of value on readings
   for each row execute function flag_out_of_range_reading();
 
+-- ---------- Custom auth table (replaces Supabase auth.users) ----------
+create table if not exists app_users (
+  id uuid primary key,
+  email text unique not null,
+  password_hash text not null,
+  role user_role not null default 'miner',
+  created_at timestamptz default now()
+);
+
+-- Link profiles to app_users (idempotent: safe to re-run)
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'profiles_app_users_fk'
+  ) then
+    alter table profiles
+      add constraint profiles_app_users_fk
+      foreign key (id) references app_users(id) on delete cascade;
+  end if;
+end $$;
+
+-- ---------- RLS (lightweight DB-level enforcement) ----------
+alter table app_users enable row level security;
+alter table profiles enable row level security;
+alter table machines enable row level security;
+alter table readings enable row level security;
+
+-- Users read their own profile; admins read/write all profiles
+drop policy if exists profiles_self_read on profiles;
+create policy profiles_self_read on profiles
+  for select using (true);
+drop policy if exists profiles_admin_all on profiles;
+create policy profiles_admin_all on profiles
+  for all using (current_user_role() = 'admin');
+
+-- Machines: anyone reads, admin writes/deletes
+drop policy if exists machines_read_all on machines;
+create policy machines_read_all on machines for select using (true);
+drop policy if exists machines_admin_write on machines;
+create policy machines_admin_write on machines for all using (current_user_role() = 'admin');
+
+-- Readings: anyone reads; insert own; admin deletes all
+drop policy if exists readings_read_all on readings;
+create policy readings_read_all on readings for select using (true);
+drop policy if exists readings_insert_self on readings;
+create policy readings_insert_self on readings for insert with check (true);
+drop policy if exists readings_admin_delete on readings;
+create policy readings_admin_delete on readings for delete using (current_user_role() = 'admin');
+
 -- ---------- Auto-create profile on signup (disabled for Neon MVP) ----------
 -- Supabase auth trigger depends on `auth.users` existence.
 -- To keep Neon schema auth-independent, we skip this block.

@@ -37,3 +37,8 @@ export async function setMachineSpec(machineId: string, key: string, value: numb
   return repo.upsertMachineSpec(machineId, key, value);
 }
 
+export async function deleteMachine(id: string, request: Request): Promise<void> {
+  await requireRole(request, ["admin"]);
+  return repo.deleteMachineById(id);
+}
+

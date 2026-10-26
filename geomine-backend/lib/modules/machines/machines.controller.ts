@@ -1,7 +1,7 @@
 // Controller layer — parses the request, calls the service, shapes the
 // response. No business logic beyond that.
 
-import { listMachines, createMachine } from "./machines.service";
+import { listMachines, createMachine, deleteMachine } from "./machines.service";
 import { handleApiError } from "@/lib/http";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -29,6 +29,19 @@ export async function createMachineController(request: NextRequest) {
       request
     );
     return NextResponse.json({ machine });
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+/** DELETE /api/machines/[id] — admin only. */
+export async function deleteMachineController(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await deleteMachine(params.id, request);
+    return NextResponse.json({ ok: true });
   } catch (error) {
     return handleApiError(error);
   }

@@ -46,3 +46,7 @@ export async function upsertMachineSpec(machineId: string, key: string, value: n
     [machineId, key, value]
   );
 }
+
+export async function deleteMachineById(id: string): Promise<void> {
+  await query(`delete from machines where id = $1`, [id]);
+}
