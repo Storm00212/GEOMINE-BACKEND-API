@@ -35,6 +35,8 @@ const copy = {
       { title: "Reading history", detail: "Review readings you have submitted and check their recorded values.", href: "/entry/history" },
       { title: "Reports", detail: "Choose a generator and date range to review and export a CSV report.", href: "/reports" },
       { title: "Add a generator", detail: "Administrators can register a generator with its name, site, and electrical phase.", href: "/machines/new" },
+      { title: "Delete a generator", detail: "Administrators can remove a generator from the fleet. Open Generators and click Delete on a generator row.", href: "/machines" },
+      { title: "Delete a reading", detail: "Administrators can remove incorrect or false readings. Open Reading history and click Delete on a reading.", href: "/entry/history" },
     ],
   },
   sw: {
@@ -63,6 +65,8 @@ const copy = {
       { title: "Historia ya vipimo", detail: "Kagua vipimo ulivyotuma na uhakikishe thamani zilizorekodiwa.", href: "/entry/history" },
       { title: "Ripoti", detail: "Chagua jenereta na kipindi ili kukagua na kupakua ripoti ya CSV.", href: "/reports" },
       { title: "Ongeza jenereta", detail: "Wasimamizi wanaweza kusajili jenereta kwa kuweka jina, eneo na awamu ya umeme.", href: "/machines/new" },
+      { title: "Futa jenereta", detail: "Wasimamizi wanaweza kuondoa jenereta kutoka kwenye mtambo. Fungua Jenereta na bonyeza Futa kwenye sehemu ya jenereta.", href: "/machines" },
+      { title: "Futa kipimo", detail: "Wasimamizi wanaweza kuondoa vipimo si sahihi au vya uongo. Fungua Historia ya vipimo na bonyeza Futa kwenye kipimo.", href: "/entry/history" },
     ],
   },
 } satisfies Record<Language, {
