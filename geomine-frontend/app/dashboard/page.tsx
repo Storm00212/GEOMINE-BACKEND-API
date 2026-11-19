@@ -24,7 +24,6 @@ import {
   RecommendationBanner,
   LoadingGauges,
   BearingTempStrip,
-  HealthSparklineStrip,
   FleetFilterChips,
   type FleetFilter,
 } from "@/app/components/dashboard-cards";
@@ -143,10 +142,24 @@ export default function DashboardPage() {
       : null;
 
   return (
-    <AppShell active="dashboard">
-      {/* Header row: title + range + refresh */}
-      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-[19px] font-semibold">Fleet overview</h1>
+    <AppShell active="dashboard" wide>
+      {/* Header: title + summary on the left, controls on the right (one compact row) */}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+          <h1 className="text-[19px] font-semibold">Fleet overview</h1>
+          <div className="text-[12.5px] text-ink-dim">
+            {loading ? (
+              <Skeleton className="inline-block h-3 w-56 align-middle" />
+            ) : (
+              <>
+                <CountUp value={machines.length} className="text-ink" /> generators
+                {sites > 0 ? ` across ${sites} site${sites > 1 ? "s" : ""}` : ""}
+                {avgHealth !== null ? <> · avg health <span className="text-ink">{avgHealth}</span></> : ""}
+                <> · last {range} days</>
+              </>
+            )}
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 rounded-md border border-line bg-panel p-0.5">
             {([7, 30, 60] as Range[]).map((d) => (
@@ -185,161 +198,164 @@ export default function DashboardPage() {
           </Link>
         </div>
       </div>
-      <div className="mb-5 mt-1 text-[13px] text-ink-dim">
-        {loading ? (
-          <Skeleton className="inline-block h-3 w-64 align-middle" />
-        ) : (
-          <>
-            <CountUp value={machines.length} className="text-ink" /> generators
-            {sites > 0 ? ` across ${sites} site${sites > 1 ? "s" : ""}` : ""}
-            {avgHealth !== null ? <> · avg health <span className="text-ink">{avgHealth}</span></> : ""}
-            {loading ? "" : <> · last {range} days</>}
-          </>
-        )}
+
+      {/* Row 1: alert banner (full width) */}
+      <div className="[&>*]:mb-3">
+        <RecommendationBanner
+          machines={machines}
+          recommendations={recommendations}
+          loading={loading || recsLoading}
+        />
       </div>
 
-      {/* C1: Recommendation banner */}
-      <RecommendationBanner
-        machines={machines}
-        recommendations={recommendations}
-        loading={loading || recsLoading}
-      />
-
-      {/* C2: Fleet loading gauge cluster */}
-      <LoadingGauges fleet={fleetSnapshot} loading={loading} />
-
-      {/* C3: Bearing-temp heat strip */}
-      <BearingTempStrip fleet={fleetSnapshot} loading={loading} />
-
-      {/* C4: Health sparkline strip (placeholder for trend; will improve later) */}
-      <HealthSparklineStrip fleet={fleetSnapshot} loading={loading} />
-
-      {/* Stat row (with count-up) */}
-      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {/* Row 2: key numbers (one row on desktop) */}
+      <div className="mb-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
+          className="!p-3"
           label="Generators"
           value={loading ? "—" : <CountUp value={machines.length} />}
         />
         <StatCard
+          className="!p-3"
           label={`Readings (${range}d)`}
           value={loading ? "—" : <CountUp value={recentInRange.length} />}
         />
         <StatCard
+          className="!p-3"
           label={`Flagged (${range}d)`}
           value={loading ? "—" : <CountUp value={flaggedInRange.length} />}
           tone={flaggedInRange.length > 0 ? "amber" : "neutral"}
         />
+        <StatCard
+          className="!p-3"
+          label="Avg health index"
+          value={loading ? "—" : avgHealth === null ? "—" : <CountUp value={avgHealth} />}
+        />
       </div>
 
-      {/* D1: Filter chips + fleet list */}
-      <DividerLabel>Generator health · sorted by maintenance priority</DividerLabel>
-      <FleetFilterChips value={filter} onChange={setFilter} counts={filterCounts} />
-      <Card>
-        {loading && fleetSnapshot.length === 0 ? (
-          <div className="space-y-2">
-            {[0, 1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-12" />
-            ))}
-          </div>
-        ) : filteredFleet.length === 0 ? (
-          <p className="px-2 py-6 text-[13px] text-ink-faint">
-            No generators in this filter.
-          </p>
-        ) : (
-          [...filteredFleet]
-            .sort((a, b) => (b.maintenance_priority_score ?? 0) - (a.maintenance_priority_score ?? 0))
-            .map((s) => {
-              const status = statusFromHealth(s.health_index);
-              const loc = machines.find((m) => m.id === s.machine_id)?.location;
-              const r = recommendations.get(s.machine_id);
-              return (
-                <FleetRow
-                  key={s.machine_id}
-                  href={`/machines/${s.machine_id}`}
-                  name={s.name}
-                  sub={`${loc ?? "Site"} — ${relTime(s.last_reading_at)}${r && r.status !== "healthy" ? ` · ${r.status.replace("_", " ")}` : ""}`}
-                  status={status}
-                  metrics={[
-                    { label: "LOADING", value: fmtPct(s.loading_pct) },
-                    {
-                      label: "HEALTH",
-                      value: s.health_index ?? "—",
-                      tone: status,
-                    },
-                    { label: "PRIORITY", value: s.maintenance_priority_score ?? "—" },
-                  ]}
-                />
-              );
-            })
-        )}
-      </Card>
+      {/* Row 3: per-generator loading gauges (left) + bearing temperature (right) */}
+      <div className="mb-3 grid grid-cols-1 gap-3 xl:grid-cols-12">
+        <div className="xl:col-span-7 [&>*]:mb-0 [&>div]:h-full">
+          <LoadingGauges fleet={fleetSnapshot} loading={loading} />
+        </div>
+        <div className="xl:col-span-5 [&>*]:mb-0 [&>*]:h-full">
+          <BearingTempStrip fleet={fleetSnapshot} loading={loading} />
+        </div>
+      </div>
 
-      {/* D2: Grouped flagged readings (click-through) */}
-      {flaggedByMachine.length > 0 && (
-        <>
-          <SectionTitle hint={`${flaggedInRange.length} flagged in last ${range}d`}>
-            Out-of-range readings
-          </SectionTitle>
-          <div className="space-y-3">
-            {flaggedByMachine.map(([machineId, group]) => (
-              <Card key={machineId} tint="red" className="!p-0">
-                <Link
-                  href={`/machines/${machineId}`}
-                  className="flex items-center justify-between border-b border-line-soft px-4 py-2.5 text-[12.5px] hover:bg-red/5"
-                >
-                  <span className="font-medium text-ink">
-                    {group.machine?.name ?? "Unknown"}
-                    <span className="ml-2 font-mono text-[10px] uppercase tracking-[1px] text-ink-faint">
-                      {group.machine?.location ?? ""}
-                    </span>
-                  </span>
-                  <span className="font-mono text-[10.5px] text-red">
-                    {group.readings.length} flagged →
-                  </span>
-                </Link>
-                {group.readings.map((r) => (
-                  <ListRow key={r.id} tint="red">
-                    <span className="min-w-0">
-                      {r.label}:{" "}
-                      <span className="font-mono">{r.value} {r.unit ?? ""}</span>
-                    </span>
-                    <span className="ml-3 shrink-0 font-mono text-[11px] text-ink-faint">
-                      {new Date(r.recorded_at).toLocaleDateString()}
-                    </span>
-                  </ListRow>
+      {/* Row 4: generator health list (left) + readings (right). Long lists scroll inside their own panel. */}
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-12">
+        <section className="xl:col-span-7">
+          <DividerLabel>Generator health · sorted by maintenance priority</DividerLabel>
+          <FleetFilterChips value={filter} onChange={setFilter} counts={filterCounts} />
+          <Card className="max-h-[340px] overflow-y-auto !py-1">
+            {loading && fleetSnapshot.length === 0 ? (
+              <div className="space-y-2 py-3">
+                {[0, 1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-12" />
                 ))}
-              </Card>
-            ))}
-          </div>
-        </>
-      )}
+              </div>
+            ) : filteredFleet.length === 0 ? (
+              <p className="px-2 py-6 text-[13px] text-ink-faint">
+                No generators in this filter.
+              </p>
+            ) : (
+              [...filteredFleet]
+                .sort((a, b) => (b.maintenance_priority_score ?? 0) - (a.maintenance_priority_score ?? 0))
+                .map((s) => {
+                  const status = statusFromHealth(s.health_index);
+                  const loc = machines.find((m) => m.id === s.machine_id)?.location;
+                  const r = recommendations.get(s.machine_id);
+                  return (
+                    <FleetRow
+                      key={s.machine_id}
+                      href={`/machines/${s.machine_id}`}
+                      name={s.name}
+                      sub={`${loc ?? "Site"} — ${relTime(s.last_reading_at)}${r && r.status !== "healthy" ? ` · ${r.status.replace("_", " ")}` : ""}`}
+                      status={status}
+                      metrics={[
+                        { label: "LOADING", value: fmtPct(s.loading_pct) },
+                        {
+                          label: "HEALTH",
+                          value: s.health_index ?? "—",
+                          tone: status,
+                        },
+                        { label: "PRIORITY", value: s.maintenance_priority_score ?? "—" },
+                      ]}
+                    />
+                  );
+                })
+            )}
+          </Card>
+        </section>
 
-      {/* Recent readings list */}
-      <SectionTitle hint={`${recentInRange.length} recent`}>Recent readings</SectionTitle>
-      <Card>
-        {loading ? (
-          <div className="space-y-2">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-7" />
-            ))}
-          </div>
-        ) : recentInRange.length === 0 ? (
-          <p className="px-2 py-4 text-[13px] text-ink-faint">No readings in this range.</p>
-        ) : (
-          recentInRange.slice(0, 15).map((r) => (
-            <ListRow key={r.id}>
-              <span className="min-w-0">
-                <span className="font-medium text-ink">{r.machine_name}</span> —{" "}
-                {r.label}:{" "}
-                <span className="font-mono">{r.value} {r.unit ?? ""}</span>
-              </span>
-              <span className="ml-3 shrink-0 font-mono text-[11px] text-ink-faint">
-                {new Date(r.recorded_at).toLocaleDateString()}
-              </span>
-            </ListRow>
-          ))
-        )}
-      </Card>
+        <section className="xl:col-span-5">
+          {flaggedByMachine.length > 0 && (
+            <>
+              <SectionTitle hint={`${flaggedInRange.length} flagged in last ${range}d`}>
+                Out-of-range readings
+              </SectionTitle>
+              <div className="mb-3 max-h-[170px] space-y-3 overflow-y-auto">
+                {flaggedByMachine.map(([machineId, group]) => (
+                  <Card key={machineId} tint="red" className="!p-0">
+                    <Link
+                      href={`/machines/${machineId}`}
+                      className="flex items-center justify-between border-b border-line-soft px-4 py-2 text-[12.5px] hover:bg-red/5"
+                    >
+                      <span className="font-medium text-ink">
+                        {group.machine?.name ?? "Unknown"}
+                        <span className="ml-2 font-mono text-[10px] uppercase tracking-[1px] text-ink-faint">
+                          {group.machine?.location ?? ""}
+                        </span>
+                      </span>
+                      <span className="font-mono text-[10.5px] text-red">
+                        {group.readings.length} flagged →
+                      </span>
+                    </Link>
+                    {group.readings.map((r) => (
+                      <ListRow key={r.id} tint="red">
+                        <span className="min-w-0">
+                          {r.label}:{" "}
+                          <span className="font-mono">{r.value} {r.unit ?? ""}</span>
+                        </span>
+                        <span className="ml-3 shrink-0 font-mono text-[11px] text-ink-faint">
+                          {new Date(r.recorded_at).toLocaleDateString()}
+                        </span>
+                      </ListRow>
+                    ))}
+                  </Card>
+                ))}
+              </div>
+            </>
+          )}
+
+          <SectionTitle hint={`${recentInRange.length} recent`}>Recent readings</SectionTitle>
+          <Card className={"overflow-y-auto !py-1 " + (flaggedByMachine.length > 0 ? "max-h-[200px]" : "max-h-[340px]")}>
+            {loading ? (
+              <div className="space-y-2 py-3">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="h-7" />
+                ))}
+              </div>
+            ) : recentInRange.length === 0 ? (
+              <p className="px-2 py-4 text-[13px] text-ink-faint">No readings in this range.</p>
+            ) : (
+              recentInRange.slice(0, 15).map((r) => (
+                <ListRow key={r.id}>
+                  <span className="min-w-0">
+                    <span className="font-medium text-ink">{r.machine_name}</span> —{" "}
+                    {r.label}:{" "}
+                    <span className="font-mono">{r.value} {r.unit ?? ""}</span>
+                  </span>
+                  <span className="ml-3 shrink-0 font-mono text-[11px] text-ink-faint">
+                    {new Date(r.recorded_at).toLocaleDateString()}
+                  </span>
+                </ListRow>
+              ))
+            )}
+          </Card>
+        </section>
+      </div>
     </AppShell>
   );
 }

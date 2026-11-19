@@ -40,10 +40,13 @@ export function toneDot(tone: StatusTone) {
 export function AppShell({
   active,
   user,
+  wide = false,
   children,
 }: {
   active: NavKey;
   user?: { initials?: string; role?: string };
+  /** Use the full available width instead of the 900px reading column (dashboards). */
+  wide?: boolean;
   children: React.ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -96,7 +99,14 @@ export function AppShell({
       )}
 
       {/* Main content — scrolls independently of the fixed sidebar */}
-      <main className="min-h-screen px-4 pb-16 pt-20 md:ml-[220px] md:max-w-[900px] md:px-10 md:py-8 md:pb-10">
+      <main
+        className={
+          "min-h-screen px-4 pb-16 pt-20 md:ml-[220px] md:pb-10 " +
+          (wide
+            ? "md:max-w-none md:px-6 md:py-5 xl:px-8"
+            : "md:max-w-[900px] md:px-10 md:py-8")
+        }
+      >
         {children}
       </main>
       <HelpAssistant />
@@ -376,13 +386,15 @@ export function StatCard({
   label,
   value,
   tone = "neutral",
+  className = "",
 }: {
   label: string;
   value: React.ReactNode;
   tone?: StatusTone;
+  className?: string;
 }) {
   return (
-    <div className="rounded-lg border border-line-soft bg-panel p-4">
+    <div className={"rounded-lg border border-line-soft bg-panel p-4 " + className}>
       <div className="text-[11.5px] text-ink-dim">{label}</div>
       <div className={"mt-1.5 font-mono text-2xl font-semibold " + TONE_TEXT[tone]}>
         {value}
