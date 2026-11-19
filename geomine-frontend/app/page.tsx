@@ -44,7 +44,7 @@ export default function Home() {
                   <h1 className="mt-5 text-3xl font-semibold text-ink md:text-4xl">
                     GEOMINE · PMS
                   </h1>
-                  <p className="mt-3 max-w-xl text-[13px] leading-relaxed text-ink-dim md:text-base">
+                  <p className="mt-3 max-w-xl text-[13px] font-medium leading-relaxed text-ink md:text-base">
                     Track generator readings, monitor fleet health, and prepare maintenance
                     reports for your team.
                   </p>
